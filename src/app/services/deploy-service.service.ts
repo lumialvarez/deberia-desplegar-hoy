@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError, catchError, map, switchMap, delay } from 'rxjs';
 import { Country, Timezone } from '../models/location.model';
 import { DeployResponse, ResponseLevel, ResponseData, LevelConfiguration, DeployLevel } from '../models/deploy-response.model';
+import { AsyncKeyword } from 'typescript';
 
 interface AppState {
   isLoading: boolean;
@@ -154,7 +155,7 @@ export class DeployService {
 
     if (country) {
       this.updateAppTitle(country.language);
-      this.loadMessages(country.language).subscribe(() => {
+      this.loadMessages(country).subscribe(() => {
         this.generateResponse();
       });
     }
@@ -168,7 +169,7 @@ export class DeployService {
 
     const country = this.stateSignal().selectedCountry;
     if (timezone && country) {
-      this.loadMessages(country.language).subscribe(() => {
+      this.loadMessages(country).subscribe(() => {
         this.generateResponse();
       });
     }
@@ -385,7 +386,7 @@ export class DeployService {
     const minute = currentTime.getMinutes();
 
     const level = this.determineLevel(dayOfWeek, hour);
-    const message = this.generateMessage(level, country.language);
+    const message = this.generateMessage(level, country);
 
     return {
       message,
@@ -425,8 +426,10 @@ export class DeployService {
     return this.responseLevels.find(l => l.level === DeployLevel.CAUTION)!;
   }
 
-  private generateMessage(level: ResponseLevel, language: string): string {
-    const messages = this.messagesCache[language] || this.messagesCache['es'];
+  private generateMessage(level: ResponseLevel, country: Country): string {
+    const messages = this.messagesCache[country.language+country.code] || 
+      this.messagesCache[country.language] ||
+      this.messagesCache['es'];
     if (!messages) return 'No se encontraron mensajes para este idioma.';
 
     // Usar el nivel directamente como clave
@@ -441,22 +444,35 @@ export class DeployService {
     return messages[randomIndex];
   }
 
-  private loadMessages(language: string): Observable<any> {
-    if (this.messagesCache[language]) {
-      return of(this.messagesCache[language]);
+  private loadMessages(country: Country): Observable<any> {
+    if (this.messagesCache[country.language+country.code]) {
+      return of(this.messagesCache[country.language+country.code]);
     }
-    const url = `assets/responses/${language}.json`;
-    return this.http.get<any>(url).pipe(
+    const url = `assets/responses/${country.language}.json`;
+    const urlCountry = `assets/responses/${country.language}-${country.code}.json`;
+
+    return this.http.get<any>(urlCountry).pipe(
       map(data => {
-        this.messagesCache[language] = data;
+        this.messagesCache[country.language+country.code] = data;
         return data;
       }),
       catchError(() => {
-        // fallback a español si no existe el idioma
-        if (language !== 'es') {
-          return this.loadMessages('es');
+        if (this.messagesCache[country.language]) {
+          return of(this.messagesCache[country.language]);
         }
-        return of({});
+        return this.http.get<any>(url).pipe(
+          map(data => {
+            this.messagesCache[country.language] = data;
+            return data;
+          }),
+          catchError(() => {
+            // fallback a español si no existe el idioma
+            if (country.language !== 'es') {
+              return this.loadMessages(this.countries[0]);
+            }
+            return of({});
+          })
+        );
       })
     );
   }
