@@ -1,0 +1,69 @@
+<div class="main-bg" [style.background-color]="state().currentLevel?.backgroundColor || '#f5f5f5'">
+  <div class="centered-content">
+    <div class="main-title">
+      <span class="main-question">¿DEBERÍAS DESPLEGAR HOY?</span>
+    </div>
+    <div *ngIf="state().isLoading" class="main-loading">
+      <mat-spinner diameter="60"></mat-spinner>
+      <p>Analizando el momento perfecto...</p>
+    </div>
+    <div *ngIf="state().error" class="main-error">
+      <mat-icon class="error-icon">error</mat-icon>
+      <p>{{ state().error }}</p>
+      <button mat-raised-button color="primary" (click)="onRefresh()">
+        Reintentar
+      </button>
+    </div>
+    <div *ngIf="!state().isLoading && !state().error && state().currentResponse" class="main-response">
+      <div class="main-emoji">{{ state().currentLevel?.emoji }}</div>
+      <div class="main-message">{{ state().currentResponse?.message }}</div>
+      <div class="main-level">
+        <span class="level-badge" [style.background-color]="state().currentLevel?.backgroundColor">
+          {{ state().currentLevel?.level | uppercase }}
+        </span>
+      </div>
+    </div>
+    <div *ngIf="!state().isLoading && !state().error && state().currentResponse" class="main-initial">
+      <p>Selecciona tu ubicación para obtener una respuesta</p>
+      <div class="location-selectors-row">
+        <mat-form-field appearance="outline" class="selector-field">
+          <mat-label>País</mat-label>
+          <mat-select 
+            [value]="state().selectedCountry" 
+            (selectionChange)="onCountryChange($event.value)"
+            placeholder="Selecciona tu país">
+            <mat-option [value]="null">Detectar automáticamente</mat-option>
+            <mat-option *ngFor="let country of countries" [value]="country">
+              {{ country.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="selector-field">
+          <mat-label>Zona Horaria</mat-label>
+          <mat-select 
+            [value]="state().selectedTimezone" 
+            (selectionChange)="onTimezoneChange($event.value)"
+            placeholder="Selecciona zona horaria">
+            <mat-option [value]="null">Detectar automáticamente</mat-option>
+            <mat-option *ngFor="let timezone of timezones" [value]="timezone">
+              {{ timezone.value }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="detect-location-row">
+        <button mat-stroked-button color="primary" (click)="onDetectLocation()" [disabled]="state().isLoading">
+          <mat-icon>my_location</mat-icon>
+          Detectar mi ubicación automáticamente
+        </button>
+      </div>
+    </div>
+    <div class="main-footer">
+      <p>¿Tienes frases divertidas para tu país? ¡Contribuye al proyecto!</p>
+      <a href="https://github.com/lumialvarez/deberia-desplegar-hoy" target="_blank">
+        <mat-icon>code</mat-icon>
+        GitHub
+      </a>
+    </div>
+  </div>
+</div>

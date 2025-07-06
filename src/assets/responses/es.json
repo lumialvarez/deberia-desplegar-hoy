@@ -1,0 +1,70 @@
+{
+  "mondayMorning": [
+    "¡SÍ! Es lunes por la mañana, ¡despliega sin miedo!",
+    "¡Venga ya! Es lunes temprano, ¡adelante con el deploy!",
+    "¡Perfecto! Lunes por la mañana es el momento ideal",
+    "¡SÍ! Todo el mundo está fresco y listo para arreglar bugs",
+    "¡Adelante! Apúrate que se acaba el día",
+    "¡SÍ! Es el mejor momento del mundo para desplegar"
+  ],
+  "mondayAfternoon": [
+    "Sí, pero ese despliegue podría esperar un día más, ¿no crees?",
+    "¡Adelante! Aún tienes tiempo antes de que termine el día",
+    "Podría ser... pero ¿ya probaste todo en staging?"
+  ],
+  "tuesdayMorning": [
+    "¡SÍ! Tienes tiempo, despliega",
+    "¡Perfecto! Martes por la mañana es un buen momento",
+    "¡Adelante! Aún es temprano en la semana"
+  ],
+  "tuesdayAfternoon": [
+    "Hmm... ¿estás seguro? Aún tienes tiempo para pensarlo",
+    "Podría ser... pero ¿ya probaste todo en staging?",
+    "Mejor espera al lunes, ¿no?"
+  ],
+  "wednesdayMorning": [
+    "¡SÍ! Tienes tiempo, despliega",
+    "¡Perfecto! Miércoles por la mañana es un buen momento",
+    "¡Adelante! Aún es temprano en la semana"
+  ],
+  "wednesdayAfternoon": [
+    "Podría ser... pero ¿ya probaste todo en staging?",
+    "Hmm... ¿estás seguro? Aún tienes tiempo para pensarlo",
+    "Mejor espera al lunes, ¿no?"
+  ],
+  "thursdayMorning": [
+    "Hmm... ¿estás seguro? Aún tienes tiempo para pensarlo",
+    "Podría ser... pero ¿ya probaste todo en staging?",
+    "Mejor espera al lunes, ¿no?"
+  ],
+  "thursdayAfternoon": [
+    "Mejor espera al lunes, ¿no?",
+    "¡NO! Es tarde, mañana será mejor",
+    "Hmm... ¿estás seguro? Aún tienes tiempo para pensarlo"
+  ],
+  "fridayMorning": [
+    "Tal vez... Es viernes, ya probaste lo suficiente. ¿Qué tal el lunes?",
+    "Hmm... ¿estás seguro? Aún tienes tiempo para pensarlo",
+    "Podría ser... pero ¿ya probaste todo en staging?"
+  ],
+  "fridayAfternoon": [
+    "¡ABSOLUTAMENTE NO! ¿Estás loco? Es viernes por la tarde",
+    "¡NO! Es viernes, nadie quiere trabajar el fin de semana",
+    "¡NO! Ya es fin de semana, ¡disfruta!"
+  ],
+  "afterWork": [
+    "¡NO! Ya es hora de cenar, mañana será otro día",
+    "¡NO! La jornada laboral terminó, descansa",
+    "¡NO! Es tarde, mañana será mejor"
+  ],
+  "weekend": [
+    "¿En serio? ¿Un fin de semana? Disfruta tu día libre",
+    "¿Estás despierto? Mejor duerme y despliega mañana",
+    "¿Un domingo? ¿De verdad?"
+  ],
+  "default": [
+    "Hmm... podría ser, pero ten cuidado",
+    "Mejor espera al lunes, ¿no?",
+    "¿Ya probaste todo en staging?"
+  ]
+} 
