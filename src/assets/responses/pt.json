@@ -1,69 +1,40 @@
 {
-  "mondayMorning": [
+  "yes": [
     "Valeu! É segunda de manhã, hora de fazer deploy!",
     "Sim! Segunda de manhã é o momento perfeito",
     "Vai em frente! Todo mundo está fresco e pronto para corrigir bugs",
     "Perfeito! Segunda de manhã é o momento ideal",
-    "Sim! É o melhor momento da semana para fazer deploy"
+    "Sim! É o melhor momento da semana para fazer deploy",
+    "Sim! Você tem tempo, faça o deploy",
+    "Perfeito! É um bom momento para fazer deploy"
   ],
-  "mondayAfternoon": [
+  "caution": [
+    "Hmm... pode ser, mas tenha cuidado",
     "Sim, mas esse deploy poderia esperar mais um dia, não acha?",
     "Vai em frente! Você ainda tem tempo antes do dia acabar",
-    "Pode ser... mas você já testou tudo em staging?"
-  ],
-  "tuesdayMorning": [
-    "Sim! Você tem tempo, faça o deploy",
-    "Perfeito! Terça de manhã é um bom momento",
-    "Vai em frente! Ainda é cedo na semana"
-  ],
-  "tuesdayAfternoon": [
-    "Hmm... tem certeza? Você ainda tem tempo para pensar",
-    "Pode ser... mas você já testou tudo em staging?",
-    "Melhor esperar até segunda, não acha?"
-  ],
-  "wednesdayMorning": [
-    "Sim! Você tem tempo, faça o deploy",
-    "Perfeito! Quarta de manhã é um bom momento",
-    "Vai em frente! Ainda é cedo na semana"
-  ],
-  "wednesdayAfternoon": [
     "Pode ser... mas você já testou tudo em staging?",
     "Hmm... tem certeza? Você ainda tem tempo para pensar",
-    "Melhor esperar até segunda, não acha?"
-  ],
-  "thursdayMorning": [
-    "Hmm... tem certeza? Você ainda tem tempo para pensar",
-    "Pode ser... mas você já testou tudo em staging?",
-    "Melhor esperar até segunda, não acha?"
-  ],
-  "thursdayAfternoon": [
-    "Melhor esperar até segunda, não acha?",
-    "NÃO! É tarde, amanhã será melhor",
-    "Hmm... tem certeza? Você ainda tem tempo para pensar"
-  ],
-  "fridayMorning": [
     "Talvez... É sexta, você já testou o suficiente. Que tal segunda?",
-    "Hmm... tem certeza? Você ainda tem tempo para pensar",
-    "Pode ser... mas você já testou tudo em staging?"
+    "Pode ser... mas não seria melhor esperar?"
   ],
-  "fridayAfternoon": [
+  "no": [
+    "NÃO! É tarde, amanhã será melhor",
+    "NÃO! O horário de trabalho acabou, descanse",
+    "NÃO! É hora do jantar, amanhã é outro dia",
+    "Melhor esperar até segunda, não acha?",
+    "NÃO! É sexta à tarde, melhor esperar",
+    "NÃO! É um momento ruim para fazer deploy",
+    "NÃO! Melhor descansar e fazer deploy amanhã"
+  ],
+  "hell-no": [
     "ABSOLUTAMENTE NÃO! Você está louco? É sexta à tarde!",
     "NÃO! É sexta, ninguém quer trabalhar no fim de semana",
-    "NÃO! Já é fim de semana, aproveite!"
-  ],
-  "afterWork": [
-    "NÃO! É hora do jantar, amanhã é outro dia",
-    "NÃO! O horário de trabalho acabou, descanse",
-    "NÃO! É tarde, amanhã será melhor"
-  ],
-  "weekend": [
+    "NÃO! Já é fim de semana, aproveite!",
     "Sério? Num fim de semana? Aproveite seu dia livre",
     "Você está acordado? Melhor dormir e fazer deploy amanhã",
-    "Um domingo? De verdade?"
-  ],
-  "default": [
-    "Hmm... pode ser, mas tenha cuidado",
-    "Melhor esperar até segunda, não acha?",
-    "Você já testou tudo em staging?"
+    "Um domingo? De verdade?",
+    "JAMAIS! É fim de semana!",
+    "NEM PENSE NISSO! Fim de semana? Descanse!",
+    "DE JEITO NENHUM! É sexta à noite!"
   ]
 } 

@@ -24,7 +24,7 @@
       <div class="response-message">{{ state().currentResponse?.message }}</div>
       <div class="response-level">
         <span class="level-badge" [style.background-color]="state().currentLevel?.backgroundColor">
-          {{ state().currentLevel?.level | uppercase }}
+          {{ currentLevelDisplay }}
         </span>
       </div>
     </div>
@@ -53,8 +53,8 @@
     <div class="location-selectors">
       <mat-form-field appearance="outline" class="selector-field">
         <mat-label>País</mat-label>
-        <mat-select 
-          [value]="state().selectedCountry" 
+        <mat-select
+          [value]="state().selectedCountry"
           (selectionChange)="onCountryChange($event.value)"
           placeholder="Selecciona tu país">
           <mat-option [value]="null">Detectar automáticamente</mat-option>
@@ -66,8 +66,8 @@
 
       <mat-form-field appearance="outline" class="selector-field">
         <mat-label>Zona Horaria</mat-label>
-        <mat-select 
-          [value]="state().selectedTimezone" 
+        <mat-select
+          [value]="state().selectedTimezone"
           (selectionChange)="onTimezoneChange($event.value)"
           placeholder="Selecciona zona horaria">
           <mat-option [value]="null">Detectar automáticamente</mat-option>
@@ -92,8 +92,8 @@
       <div class="debug-selectors">
         <mat-form-field appearance="outline" class="debug-field">
           <mat-label>Día de la semana</mat-label>
-          <mat-select 
-            [value]="state().debugDay" 
+          <mat-select
+            [value]="state().debugDay"
             (selectionChange)="onDebugDayChange($event.value)"
             placeholder="Selecciona día">
             <mat-option [value]="null">Usar día actual</mat-option>
@@ -105,8 +105,8 @@
 
         <mat-form-field appearance="outline" class="debug-field">
           <mat-label>Hora</mat-label>
-          <mat-select 
-            [value]="state().debugHour" 
+          <mat-select
+            [value]="state().debugHour"
             (selectionChange)="onDebugHourChange($event.value)"
             placeholder="Selecciona hora">
             <mat-option [value]="null">Usar hora actual</mat-option>

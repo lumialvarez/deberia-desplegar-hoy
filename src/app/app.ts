@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import { DeployService } from './services/deploy-service.service';
 import { Country, Timezone } from './models/location.model';
+import { DeployLevel } from './models/deploy-response.model';
 
 @Component({
   selector: 'app-root',
@@ -63,6 +64,12 @@ export class App {
   onDebugHourChange(hour: number): void {
     const currentState = this.state();
     this.deployService.setDebugDateTime(currentState.debugDay, hour);
+  }
+
+  // Getters para el template
+  get currentLevelDisplay(): string {
+    const level = this.state().currentLevel?.level;
+    return level ? level.toString().toUpperCase() : '';
   }
 
   // Métodos de utilidad para el template

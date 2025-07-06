@@ -2,7 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError, catchError, map, switchMap, delay } from 'rxjs';
 import { Country, Timezone } from '../models/location.model';
-import { DeployResponse, ResponseLevel, ResponseData } from '../models/deploy-response.model';
+import { DeployResponse, ResponseLevel, ResponseData, LevelConfiguration, DeployLevel } from '../models/deploy-response.model';
 
 interface AppState {
   isLoading: boolean;
@@ -16,6 +16,7 @@ interface AppState {
   debugDay: number | null;
   debugHour: number | null;
   appTitle: string;
+  levelConfiguration: LevelConfiguration | null;
 }
 
 @Injectable({
@@ -23,7 +24,7 @@ interface AppState {
 })
 export class DeployService {
   private http = inject(HttpClient);
-  
+
   // Estado principal usando signals
   private stateSignal = signal<AppState>({
     isLoading: false,
@@ -36,7 +37,8 @@ export class DeployService {
     isDebugMode: false,
     debugDay: null,
     debugHour: null,
-    appTitle: '¿DEBERÍAS DESPLEGAR HOY?'
+    appTitle: '¿DEBERÍAS DESPLEGAR HOY?',
+    levelConfiguration: null
   });
 
   // Cache de mensajes por idioma
@@ -74,34 +76,36 @@ export class DeployService {
 
   private readonly responseLevels: ResponseLevel[] = [
     {
-      level: 'success',
+      level: DeployLevel.YES,
       emoji: '🟢',
       backgroundColor: '#4caf50',
       textColor: '#ffffff'
     },
     {
-      level: 'warning',
+      level: DeployLevel.CAUTION,
       emoji: '🟡',
       backgroundColor: '#ff9800',
       textColor: '#ffffff'
     },
     {
-      level: 'error',
+      level: DeployLevel.NO,
       emoji: '🔴',
       backgroundColor: '#f44336',
       textColor: '#ffffff'
     },
     {
-      level: 'forbidden',
-      emoji: '🌙',
-      backgroundColor: '#ff4136',
+      level: DeployLevel.HELL_NO,
+      emoji: '🚫',
+      backgroundColor: '#d32f2f',
       textColor: '#ffffff'
     }
   ];
 
   constructor() {
-    this.initializeApp();
     this.checkDebugMode();
+    this.loadLevelConfiguration().subscribe(() => {
+      this.initializeApp();
+    });
   }
 
   // Métodos públicos
@@ -115,40 +119,28 @@ export class DeployService {
 
   public detectLocation(): void {
     this.stateSignal.update(state => ({ ...state, isLoading: true, error: null }));
-    
+
     this.detectCountryByIP().subscribe({
       next: (detectedCountry) => {
         const country = detectedCountry || this.countries.find(c => c.code === 'ES') || this.countries[0];
-        const timezone = this.findTimezoneForCountry(country);
-        
+
         this.stateSignal.update(state => ({
           ...state,
-          selectedCountry: country,
-          selectedTimezone: timezone,
           isLoading: false
         }));
 
-        this.updateAppTitle(country.language);
-        this.loadMessages(country.language).subscribe(() => {
-          this.generateResponse();
-        });
+        this.selectCountry(country);
       },
       error: () => {
         // Fallback a España si falla la detección
         const defaultCountry = this.countries.find(c => c.code === 'ES') || this.countries[0];
-        const defaultTimezone = this.findTimezoneForCountry(defaultCountry);
-        
+
         this.stateSignal.update(state => ({
           ...state,
-          selectedCountry: defaultCountry,
-          selectedTimezone: defaultTimezone,
           isLoading: false
         }));
 
-        this.updateAppTitle(defaultCountry.language);
-        this.loadMessages(defaultCountry.language).subscribe(() => {
-          this.generateResponse();
-        });
+        this.selectCountry(defaultCountry);
       }
     });
   }
@@ -159,7 +151,7 @@ export class DeployService {
       selectedCountry: country,
       selectedTimezone: country ? this.findTimezoneForCountry(country) : null
     }));
-    
+
     if (country) {
       this.updateAppTitle(country.language);
       this.loadMessages(country.language).subscribe(() => {
@@ -173,7 +165,7 @@ export class DeployService {
       ...state,
       selectedTimezone: timezone
     }));
-    
+
     const country = this.stateSignal().selectedCountry;
     if (timezone && country) {
       this.loadMessages(country.language).subscribe(() => {
@@ -192,7 +184,7 @@ export class DeployService {
       debugDay: day,
       debugHour: hour
     }));
-    
+
     this.generateResponse();
   }
 
@@ -219,7 +211,71 @@ export class DeployService {
     return hours;
   }
 
+  public getLevelConfiguration(): LevelConfiguration | null {
+    return this.stateSignal().levelConfiguration;
+  }
+
   // Métodos privados
+  private mapStringToDeployLevel(level: string): DeployLevel {
+    switch (level) {
+      case 'yes':
+        return DeployLevel.YES;
+      case 'caution':
+        return DeployLevel.CAUTION;
+      case 'no':
+        return DeployLevel.NO;
+      case 'hell-no':
+        return DeployLevel.HELL_NO;
+      default:
+        console.warn(`Nivel desconocido: ${level}, usando CAUTION por defecto`);
+        return DeployLevel.CAUTION;
+    }
+  }
+
+  private transformJsonToConfiguration(jsonConfig: any[]): LevelConfiguration {
+    return jsonConfig.map(dayConfig => ({
+      dayOfWeek: dayConfig.dayOfWeek,
+      ranges: dayConfig.ranges.map((range: any) => ({
+        startHour: range.startHour,
+        endHour: range.endHour,
+        level: this.mapStringToDeployLevel(range.level)
+      }))
+    }));
+  }
+
+  private loadLevelConfiguration(): Observable<LevelConfiguration> {
+    return this.http.get<any[]>('assets/deploy-config.json').pipe(
+      map(jsonConfig => {
+        const config = this.transformJsonToConfiguration(jsonConfig);
+        this.stateSignal.update(state => ({
+          ...state,
+          levelConfiguration: config
+        }));
+        return config;
+      }),
+      catchError(error => {
+        console.error('Error al cargar configuración de niveles:', error);
+                 // Configuración por defecto en caso de error
+         const defaultConfig: LevelConfiguration = [
+           {
+             dayOfWeek: [0, 6],
+             ranges: [{ startHour: 0, endHour: 23, level: DeployLevel.HELL_NO }]
+           },
+           {
+             dayOfWeek: [1, 2, 3, 4, 5],
+             ranges: [{ startHour: 0, endHour: 23, level: DeployLevel.CAUTION }]
+           }
+         ];
+
+        this.stateSignal.update(state => ({
+          ...state,
+          levelConfiguration: defaultConfig
+        }));
+
+        return of(defaultConfig);
+      })
+    );
+  }
   private initializeApp(): void {
     this.detectLocation();
   }
@@ -227,7 +283,7 @@ export class DeployService {
   private checkDebugMode(): void {
     const urlParams = new URLSearchParams(window.location.search);
     const isDebugMode = urlParams.get('debug') === 'true';
-    
+
     this.stateSignal.update(state => ({
       ...state,
       isDebugMode
@@ -253,21 +309,21 @@ export class DeployService {
       map(response => {
         const countryCode = response.country_code;
         const detectedCountry = this.countries.find(c => c.code === countryCode);
-        
+
         if (detectedCountry) {
           console.log(`País detectado: ${detectedCountry.name} (${countryCode})`);
           return detectedCountry;
         }
-        
+
         // Si no encontramos el país, intentar con el código de región
         const regionCode = response.region_code;
         const fallbackCountry = this.countries.find(c => c.code === regionCode);
-        
+
         if (fallbackCountry) {
           console.log(`País detectado (fallback): ${fallbackCountry.name} (${regionCode})`);
           return fallbackCountry;
         }
-        
+
         console.log('No se pudo detectar el país, usando España por defecto');
         return null;
       }),
@@ -284,7 +340,7 @@ export class DeployService {
 
   private generateResponse(): void {
     const currentState = this.stateSignal();
-    
+
     if (!currentState.selectedCountry || !currentState.selectedTimezone) {
       return;
     }
@@ -296,7 +352,7 @@ export class DeployService {
       try {
         const currentTime = new Date();
         const response = this.createResponse(currentTime, currentState.selectedCountry!, currentState.selectedTimezone!);
-        
+
         this.stateSignal.update(state => ({
           ...state,
           isLoading: false,
@@ -316,20 +372,20 @@ export class DeployService {
 
   private createResponse(currentTime: Date, country: Country, timezone: Timezone): DeployResponse {
     const currentState = this.stateSignal();
-    
+
     // Usar valores de debug si están disponibles
-    const dayOfWeek = currentState.isDebugMode && currentState.debugDay !== null 
-      ? currentState.debugDay 
+    const dayOfWeek = currentState.isDebugMode && currentState.debugDay !== null
+      ? currentState.debugDay
       : currentTime.getDay(); // 0 = Domingo, 1 = Lunes, etc.
-    
-    const hour = currentState.isDebugMode && currentState.debugHour !== null 
-      ? currentState.debugHour 
+
+    const hour = currentState.isDebugMode && currentState.debugHour !== null
+      ? currentState.debugHour
       : currentTime.getHours();
-    
+
     const minute = currentTime.getMinutes();
 
     const level = this.determineLevel(dayOfWeek, hour);
-    const message = this.generateMessage(dayOfWeek, hour, country.language);
+    const message = this.generateMessage(level, country.language);
 
     return {
       message,
@@ -346,70 +402,37 @@ export class DeployService {
   }
 
   private determineLevel(dayOfWeek: number, hour: number): ResponseLevel {
-    // Lógica de niveles basada en día y hora
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-      // Fines de semana
-      return this.responseLevels.find(l => l.level === 'forbidden')!;
+    const levelConfig = this.stateSignal().levelConfiguration;
+
+    // Si no hay configuración cargada, usar fallback
+    if (!levelConfig) {
+      return this.responseLevels.find(l => l.level === DeployLevel.CAUTION)!;
     }
 
-    if (hour >= 18) {
-      // Después de las 6 PM
-      return this.responseLevels.find(l => l.level === 'error')!;
+    // Buscar configuración para el día de la semana
+    for (const config of levelConfig) {
+      if (config.dayOfWeek.includes(dayOfWeek)) {
+        // Buscar el rango de horas que coincide
+        for (const range of config.ranges) {
+          if (hour >= range.startHour && hour <= range.endHour) {
+            return this.responseLevels.find(l => l.level === range.level)!;
+          }
+        }
+      }
     }
 
-    if (dayOfWeek === 1 && hour >= 9 && hour <= 12) {
-      // Lunes por la mañana
-      return this.responseLevels.find(l => l.level === 'success')!;
-    }
-
-    if (dayOfWeek === 5 && hour >= 13) {
-      // Viernes después del mediodía
-      return this.responseLevels.find(l => l.level === 'forbidden')!;
-    }
-
-    if (dayOfWeek === 5 && hour >= 9 && hour <= 12) {
-      // Viernes por la mañana
-      return this.responseLevels.find(l => l.level === 'warning')!;
-    }
-
-    // Otros casos
-    return this.responseLevels.find(l => l.level === 'warning')!;
+    // Fallback por defecto
+    return this.responseLevels.find(l => l.level === DeployLevel.CAUTION)!;
   }
 
-  private generateMessage(dayOfWeek: number, hour: number, language: string): string {
+  private generateMessage(level: ResponseLevel, language: string): string {
     const messages = this.messagesCache[language] || this.messagesCache['es'];
     if (!messages) return 'No se encontraron mensajes para este idioma.';
 
-    // Mapear día y franja horaria a la clave del JSON
-    let key = 'default';
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
-      key = 'weekend';
-    } else if (hour >= 18) {
-      key = 'afterWork';
-    } else if (dayOfWeek === 1 && hour >= 9 && hour < 13) {
-      key = 'mondayMorning';
-    } else if (dayOfWeek === 1 && hour >= 13) {
-      key = 'mondayAfternoon';
-    } else if (dayOfWeek === 2 && hour < 13) {
-      key = 'tuesdayMorning';
-    } else if (dayOfWeek === 2 && hour >= 13) {
-      key = 'tuesdayAfternoon';
-    } else if (dayOfWeek === 3 && hour < 13) {
-      key = 'wednesdayMorning';
-    } else if (dayOfWeek === 3 && hour >= 13) {
-      key = 'wednesdayAfternoon';
-    } else if (dayOfWeek === 4 && hour < 13) {
-      key = 'thursdayMorning';
-    } else if (dayOfWeek === 4 && hour >= 13) {
-      key = 'thursdayAfternoon';
-    } else if (dayOfWeek === 5 && hour < 13) {
-      key = 'fridayMorning';
-    } else if (dayOfWeek === 5 && hour >= 13) {
-      key = 'fridayAfternoon';
-    }
+    // Usar el nivel directamente como clave
+    const arr = messages[level.level] || messages[DeployLevel.CAUTION] || [];
+    if (!arr.length) return 'No hay mensajes configurados para este nivel.';
 
-    const arr = messages[key] || messages['default'] || [];
-    if (!arr.length) return 'No hay mensajes configurados para este contexto.';
     return this.getRandomMessage(arr).toUpperCase();
   }
 
@@ -437,4 +460,4 @@ export class DeployService {
       })
     );
   }
-} 
+}

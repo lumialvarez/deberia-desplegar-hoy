@@ -1,70 +1,41 @@
 {
-  "mondayMorning": [
+  "yes": [
     "Hell yeah! It's Monday morning, time to deploy!",
     "Yes! Monday morning is the perfect time",
     "Go for it! Everyone is fresh and ready to fix bugs",
     "Absolutely! Monday morning is the best time to deploy",
     "Perfect! Everyone is back from the weekend and ready",
-    "Yes! It's the best time of the week to deploy"
+    "Yes! It's the best time of the week to deploy",
+    "Yes! You have time, deploy",
+    "Perfect! It's a good time to deploy"
   ],
-  "mondayAfternoon": [
+  "caution": [
+    "Hmm... could be, but be careful",
     "Yes, but that deployment could wait another day, don't you think?",
     "Go ahead! You still have time before the day ends",
-    "Could be... but did you test everything in staging?"
-  ],
-  "tuesdayMorning": [
-    "Yes! You have time, deploy",
-    "Perfect! Tuesday morning is a good time",
-    "Go ahead! It's still early in the week"
-  ],
-  "tuesdayAfternoon": [
-    "Hmm... are you sure? You still have time to think about it",
-    "Could be... but did you test everything in staging?",
-    "Better wait until Monday, don't you think?"
-  ],
-  "wednesdayMorning": [
-    "Yes! You have time, deploy",
-    "Perfect! Wednesday morning is a good time",
-    "Go ahead! It's still early in the week"
-  ],
-  "wednesdayAfternoon": [
     "Could be... but did you test everything in staging?",
     "Hmm... are you sure? You still have time to think about it",
-    "Better wait until Monday, don't you think?"
-  ],
-  "thursdayMorning": [
-    "Hmm... are you sure? You still have time to think about it",
-    "Could be... but did you test everything in staging?",
-    "Better wait until Monday, don't you think?"
-  ],
-  "thursdayAfternoon": [
-    "Better wait until Monday, don't you think?",
-    "NO! It's late, tomorrow will be better",
-    "Hmm... are you sure? You still have time to think about it"
-  ],
-  "fridayMorning": [
     "Maybe... It's Friday, you've tested enough. How about Monday?",
-    "Hmm... are you sure? You still have time to think about it",
-    "Could be... but did you test everything in staging?"
+    "Could be... but wouldn't it be better to wait?"
   ],
-  "fridayAfternoon": [
+  "no": [
+    "NO! It's late, tomorrow will be better",
+    "NO! Work hours are over, rest up",
+    "NO! It's dinner time, tomorrow is another day",
+    "Better wait until Monday, don't you think?",
+    "NO! It's Friday afternoon, better wait",
+    "NO! It's a bad time to deploy",
+    "NO! Better rest and deploy tomorrow"
+  ],
+  "hell-no": [
     "ABSOLUTELY NOT! Are you crazy? It's Friday afternoon!",
     "NO! It's Friday, no one wants to work on the weekend",
-    "NO! It's already weekend time, enjoy!"
-  ],
-  "afterWork": [
-    "NO! It's dinner time, tomorrow is another day",
-    "NO! Work hours are over, rest up",
-    "NO! It's late, tomorrow will be better"
-  ],
-  "weekend": [
+    "NO! It's already weekend time, enjoy!",
     "Seriously? On a weekend? Enjoy your day off",
     "Are you awake? Better sleep and deploy tomorrow",
-    "A Sunday? Really?"
-  ],
-  "default": [
-    "Hmm... could be, but be careful",
-    "Better wait until Monday, don't you think?",
-    "Did you test everything in staging?"
+    "A Sunday? Really?",
+    "NEVER! It's weekend time!",
+    "DON'T EVEN THINK ABOUT IT! Weekend? Rest!",
+    "NO WAY! It's Friday night!"
   ]
 } 
