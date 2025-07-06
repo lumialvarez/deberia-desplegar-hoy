@@ -1,69 +1,130 @@
-<div class="main-bg" [style.background-color]="state().currentLevel?.backgroundColor || '#f5f5f5'">
-  <div class="centered-content">
-    <div class="main-title">
-      <span class="main-question">¿DEBERÍAS DESPLEGAR HOY?</span>
-    </div>
-    <div *ngIf="state().isLoading" class="main-loading">
+<div class="app-container" [style.background-color]="state().currentLevel?.backgroundColor || '#f5f5f5'">
+  <!-- Título Principal -->
+  <div class="app-title">
+    <h1>{{ state().appTitle }}</h1>
+  </div>
+
+  <!-- Respuesta Central (Lo más prominente) -->
+  <div class="response-section">
+    <div *ngIf="state().isLoading" class="loading-content">
       <mat-spinner diameter="60"></mat-spinner>
       <p>Analizando el momento perfecto...</p>
     </div>
-    <div *ngIf="state().error" class="main-error">
+
+    <div *ngIf="state().error" class="error-content">
       <mat-icon class="error-icon">error</mat-icon>
       <p>{{ state().error }}</p>
       <button mat-raised-button color="primary" (click)="onRefresh()">
         Reintentar
       </button>
     </div>
-    <div *ngIf="!state().isLoading && !state().error && state().currentResponse" class="main-response">
-      <div class="main-emoji">{{ state().currentLevel?.emoji }}</div>
-      <div class="main-message">{{ state().currentResponse?.message }}</div>
-      <div class="main-level">
+
+    <div *ngIf="!state().isLoading && !state().error && state().currentResponse" class="response-content">
+      <div class="response-emoji">{{ state().currentLevel?.emoji }}</div>
+      <div class="response-message">{{ state().currentResponse?.message }}</div>
+      <div class="response-level">
         <span class="level-badge" [style.background-color]="state().currentLevel?.backgroundColor">
           {{ state().currentLevel?.level | uppercase }}
         </span>
       </div>
     </div>
-    <div *ngIf="!state().isLoading && !state().error && state().currentResponse" class="main-initial">
-      <p>Selecciona tu ubicación para obtener una respuesta</p>
-      <div class="location-selectors-row">
-        <mat-form-field appearance="outline" class="selector-field">
-          <mat-label>País</mat-label>
+
+    <div *ngIf="!state().isLoading && !state().error && !state().currentResponse" class="initial-content">
+      <mat-icon class="initial-icon">schedule</mat-icon>
+      <p>Selecciona tu ubicación para obtener una respuesta personalizada</p>
+    </div>
+  </div>
+
+  <!-- Fecha y Hora -->
+  <div class="datetime-section" *ngIf="state().currentTime">
+    <div class="current-time">
+      <mat-icon>schedule</mat-icon>
+      <span>{{ getCurrentTimeString() }}</span>
+    </div>
+    <div class="current-date">
+      <mat-icon>today</mat-icon>
+      <span>{{ getCurrentDateString() }}</span>
+    </div>
+  </div>
+
+  <!-- Controles (A 3/4 de la pantalla) -->
+  <div class="controls-section">
+    <!-- Selectores País y Zona Horaria -->
+    <div class="location-selectors">
+      <mat-form-field appearance="outline" class="selector-field">
+        <mat-label>País</mat-label>
+        <mat-select 
+          [value]="state().selectedCountry" 
+          (selectionChange)="onCountryChange($event.value)"
+          placeholder="Selecciona tu país">
+          <mat-option [value]="null">Detectar automáticamente</mat-option>
+          <mat-option *ngFor="let country of countries" [value]="country">
+            {{ country.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="selector-field">
+        <mat-label>Zona Horaria</mat-label>
+        <mat-select 
+          [value]="state().selectedTimezone" 
+          (selectionChange)="onTimezoneChange($event.value)"
+          placeholder="Selecciona zona horaria">
+          <mat-option [value]="null">Detectar automáticamente</mat-option>
+          <mat-option *ngFor="let timezone of timezones" [value]="timezone">
+            {{ timezone.value }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Botón Detectar Ubicación -->
+    <div class="detect-location">
+      <button mat-stroked-button color="primary" (click)="onDetectLocation()" [disabled]="state().isLoading">
+        <mat-icon>my_location</mat-icon>
+        Detectar mi ubicación automáticamente
+      </button>
+    </div>
+
+    <!-- Controles Debug (Solo si debug=true) -->
+    <div *ngIf="state().isDebugMode" class="debug-controls">
+      <h3>Modo Debug</h3>
+      <div class="debug-selectors">
+        <mat-form-field appearance="outline" class="debug-field">
+          <mat-label>Día de la semana</mat-label>
           <mat-select 
-            [value]="state().selectedCountry" 
-            (selectionChange)="onCountryChange($event.value)"
-            placeholder="Selecciona tu país">
-            <mat-option [value]="null">Detectar automáticamente</mat-option>
-            <mat-option *ngFor="let country of countries" [value]="country">
-              {{ country.name }}
+            [value]="state().debugDay" 
+            (selectionChange)="onDebugDayChange($event.value)"
+            placeholder="Selecciona día">
+            <mat-option [value]="null">Usar día actual</mat-option>
+            <mat-option *ngFor="let day of debugDays" [value]="day.value">
+              {{ day.label }}
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field appearance="outline" class="selector-field">
-          <mat-label>Zona Horaria</mat-label>
+
+        <mat-form-field appearance="outline" class="debug-field">
+          <mat-label>Hora</mat-label>
           <mat-select 
-            [value]="state().selectedTimezone" 
-            (selectionChange)="onTimezoneChange($event.value)"
-            placeholder="Selecciona zona horaria">
-            <mat-option [value]="null">Detectar automáticamente</mat-option>
-            <mat-option *ngFor="let timezone of timezones" [value]="timezone">
-              {{ timezone.value }}
+            [value]="state().debugHour" 
+            (selectionChange)="onDebugHourChange($event.value)"
+            placeholder="Selecciona hora">
+            <mat-option [value]="null">Usar hora actual</mat-option>
+            <mat-option *ngFor="let hour of debugHours" [value]="hour.value">
+              {{ hour.label }}
             </mat-option>
           </mat-select>
         </mat-form-field>
       </div>
-      <div class="detect-location-row">
-        <button mat-stroked-button color="primary" (click)="onDetectLocation()" [disabled]="state().isLoading">
-          <mat-icon>my_location</mat-icon>
-          Detectar mi ubicación automáticamente
-        </button>
-      </div>
     </div>
-    <div class="main-footer">
-      <p>¿Tienes frases divertidas para tu país? ¡Contribuye al proyecto!</p>
-      <a href="https://github.com/lumialvarez/deberia-desplegar-hoy" target="_blank">
-        <mat-icon>code</mat-icon>
-        GitHub
-      </a>
-    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-section">
+    <p>¿Tienes frases divertidas para tu país? ¡Contribuye al proyecto!</p>
+    <a href="https://github.com/lumialvarez/deberia-desplegar-hoy" target="_blank">
+      <mat-icon>code</mat-icon>
+      GitHub
+    </a>
   </div>
 </div>

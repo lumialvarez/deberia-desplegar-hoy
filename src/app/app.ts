@@ -35,6 +35,8 @@ export class App {
   // Datos para los selectores
   public countries = this.deployService.getCountries();
   public timezones = this.deployService.getTimezones();
+  public debugDays = this.deployService.getDebugDays();
+  public debugHours = this.deployService.getDebugHours();
 
   // Métodos para manejar selecciones
   onCountryChange(country: Country): void {
@@ -51,6 +53,16 @@ export class App {
 
   onDetectLocation(): void {
     this.deployService.detectLocation();
+  }
+
+  onDebugDayChange(day: number): void {
+    const currentState = this.state();
+    this.deployService.setDebugDateTime(day, currentState.debugHour);
+  }
+
+  onDebugHourChange(hour: number): void {
+    const currentState = this.state();
+    this.deployService.setDebugDateTime(currentState.debugDay, hour);
   }
 
   // Métodos de utilidad para el template

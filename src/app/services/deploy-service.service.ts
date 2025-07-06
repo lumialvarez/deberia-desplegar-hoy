@@ -12,6 +12,10 @@ interface AppState {
   selectedTimezone: Timezone | null;
   currentResponse: DeployResponse | null;
   currentLevel: ResponseLevel | null;
+  isDebugMode: boolean;
+  debugDay: number | null;
+  debugHour: number | null;
+  appTitle: string;
 }
 
 @Injectable({
@@ -28,7 +32,11 @@ export class DeployService {
     selectedCountry: null,
     selectedTimezone: null,
     currentResponse: null,
-    currentLevel: null
+    currentLevel: null,
+    isDebugMode: false,
+    debugDay: null,
+    debugHour: null,
+    appTitle: '¿DEBERÍAS DESPLEGAR HOY?'
   });
 
   // Cache de mensajes por idioma
@@ -93,6 +101,7 @@ export class DeployService {
 
   constructor() {
     this.initializeApp();
+    this.checkDebugMode();
   }
 
   // Métodos públicos
@@ -119,6 +128,7 @@ export class DeployService {
           isLoading: false
         }));
 
+        this.updateAppTitle(country.language);
         this.loadMessages(country.language).subscribe(() => {
           this.generateResponse();
         });
@@ -135,6 +145,7 @@ export class DeployService {
           isLoading: false
         }));
 
+        this.updateAppTitle(defaultCountry.language);
         this.loadMessages(defaultCountry.language).subscribe(() => {
           this.generateResponse();
         });
@@ -150,6 +161,7 @@ export class DeployService {
     }));
     
     if (country) {
+      this.updateAppTitle(country.language);
       this.loadMessages(country.language).subscribe(() => {
         this.generateResponse();
       });
@@ -174,9 +186,65 @@ export class DeployService {
     this.generateResponse();
   }
 
+  public setDebugDateTime(day: number | null, hour: number | null): void {
+    this.stateSignal.update(state => ({
+      ...state,
+      debugDay: day,
+      debugHour: hour
+    }));
+    
+    this.generateResponse();
+  }
+
+  public getDebugDays(): { value: number; label: string }[] {
+    return [
+      { value: 0, label: 'Domingo' },
+      { value: 1, label: 'Lunes' },
+      { value: 2, label: 'Martes' },
+      { value: 3, label: 'Miércoles' },
+      { value: 4, label: 'Jueves' },
+      { value: 5, label: 'Viernes' },
+      { value: 6, label: 'Sábado' }
+    ];
+  }
+
+  public getDebugHours(): { value: number; label: string }[] {
+    const hours = [];
+    for (let i = 0; i < 24; i++) {
+      hours.push({
+        value: i,
+        label: `${i.toString().padStart(2, '0')}:00`
+      });
+    }
+    return hours;
+  }
+
   // Métodos privados
   private initializeApp(): void {
     this.detectLocation();
+  }
+
+  private checkDebugMode(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDebugMode = urlParams.get('debug') === 'true';
+    
+    this.stateSignal.update(state => ({
+      ...state,
+      isDebugMode
+    }));
+  }
+
+  private updateAppTitle(language: string): void {
+    const titles: { [key: string]: string } = {
+      'es': '¿DEBERÍAS DESPLEGAR HOY?',
+      'en': 'SHOULD YOU DEPLOY TODAY?',
+      'pt': 'VOCÊ DEVERIA FAZER DEPLOY HOJE?'
+    };
+
+    this.stateSignal.update(state => ({
+      ...state,
+      appTitle: titles[language] || titles['es']
+    }));
   }
 
   private detectCountryByIP(): Observable<Country | null> {
@@ -247,8 +315,17 @@ export class DeployService {
   }
 
   private createResponse(currentTime: Date, country: Country, timezone: Timezone): DeployResponse {
-    const dayOfWeek = currentTime.getDay(); // 0 = Domingo, 1 = Lunes, etc.
-    const hour = currentTime.getHours();
+    const currentState = this.stateSignal();
+    
+    // Usar valores de debug si están disponibles
+    const dayOfWeek = currentState.isDebugMode && currentState.debugDay !== null 
+      ? currentState.debugDay 
+      : currentTime.getDay(); // 0 = Domingo, 1 = Lunes, etc.
+    
+    const hour = currentState.isDebugMode && currentState.debugHour !== null 
+      ? currentState.debugHour 
+      : currentTime.getHours();
+    
     const minute = currentTime.getMinutes();
 
     const level = this.determineLevel(dayOfWeek, hour);
