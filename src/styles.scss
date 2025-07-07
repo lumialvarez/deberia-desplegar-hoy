@@ -1,1 +1,311 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, hsl(220, 15%, 6%) 0%, hsl(220, 20%, 10%) 100%);
+  color: hsl(210, 40%, 98%);
+}
+
+/* Angular Material overrides for dark theme */
+
+/* Form field styling */
+.mat-mdc-form-field {
+  &.mat-mdc-form-field {
+    --mdc-filled-text-field-caret-color: hsl(210, 40%, 98%);
+    --mdc-filled-text-field-focus-active-indicator-color: transparent;
+    --mdc-filled-text-field-active-indicator-color: transparent;
+    --mdc-filled-text-field-focus-label-text-color: hsl(142, 76%, 36%);
+    --mdc-filled-text-field-container-color: hsl(220, 10%, 18%);
+    --mdc-filled-text-field-label-text-color: hsl(215.4, 16.3%, 65%);
+    --mdc-filled-text-field-input-text-color: hsl(210, 40%, 98%);
+  }
+
+  .mdc-text-field--filled {
+    background-color: hsl(220, 10%, 18%) !important;
+    border-radius: 8px 8px 0 0 !important;
+    
+    .mdc-text-field__input {
+      color: hsl(210, 40%, 98%) !important;
+      caret-color: hsl(210, 40%, 98%) !important;
+    }
+    
+    .mdc-floating-label {
+      color: hsl(215.4, 16.3%, 65%) !important;
+      
+      &.mdc-floating-label--float-above {
+        color: hsl(142, 76%, 36%) !important;
+      }
+    }
+    
+    .mdc-line-ripple {
+      display: none !important;
+    }
+    
+    .mdc-line-ripple::before,
+    .mdc-line-ripple::after {
+      display: none !important;
+      border: none !important;
+    }
+    
+    &::before,
+    &::after {
+      display: none !important;
+    }
+  }
+}
+
+/* Outlined form field */
+.mat-mdc-form-field.mat-mdc-form-field {
+  &.mat-form-field-appearance-outline {
+    --mdc-outlined-text-field-caret-color: hsl(210, 40%, 98%);
+    --mdc-outlined-text-field-focus-outline-color: hsl(142, 76%, 36%);
+    --mdc-outlined-text-field-focus-label-text-color: hsl(142, 76%, 36%);
+    --mdc-outlined-text-field-label-text-color: hsl(215.4, 16.3%, 65%);
+    --mdc-outlined-text-field-input-text-color: hsl(210, 40%, 98%);
+    --mdc-outlined-text-field-outline-color: hsl(220, 10%, 25%);
+  }
+
+  .mdc-text-field--outlined {
+    background-color: hsl(220, 10%, 18%) !important;
+    border-radius: 8px !important;
+    
+    .mdc-notched-outline {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: hsl(220, 10%, 25%) !important;
+        border-width: 1px !important;
+      }
+    }
+    
+    &.mdc-text-field--focused .mdc-notched-outline {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: hsl(142, 76%, 36%) !important;
+        border-width: 2px !important;
+      }
+    }
+    
+    .mdc-text-field__input {
+      color: hsl(210, 40%, 98%) !important;
+      caret-color: hsl(210, 40%, 98%) !important;
+    }
+    
+    .mdc-floating-label {
+      color: hsl(215.4, 16.3%, 65%) !important;
+      
+      &.mdc-floating-label--float-above {
+        color: hsl(142, 76%, 36%) !important;
+      }
+    }
+  }
+}
+
+/* Select specific styling */
+.mat-mdc-select {
+  .mat-mdc-select-value {
+    color: hsl(210, 40%, 98%) !important;
+    padding: 0px 5px!important;
+  }
+  
+  .mat-mdc-select-placeholder {
+    color: hsl(215.4, 16.3%, 65%) !important;
+  }
+  
+  .mat-mdc-select-arrow-wrapper {
+    padding-right: 5px !important;
+
+    .mat-mdc-select-arrow {
+      color: hsl(215.4, 16.3%, 65%) !important;
+      
+    }
+  }
+}
+
+/* Eliminar cualquier línea o border problemático */
+.mat-mdc-form-field .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: hsl(220, 10%, 18%) !important;
+  
+  .mdc-text-field__ripple {
+    display: none !important;
+  }
+  
+  &::before {
+    border-bottom: none !important;
+    display: none !important;
+  }
+  
+  &::after {
+    border-bottom: none !important;
+    display: none !important;
+  }
+}
+
+/* Estilos adicionales para eliminar líneas */
+.mat-mdc-form-field-focus-overlay {
+  display: none !important;
+}
+
+.mat-mdc-form-field-ripple {
+  display: none !important;
+}
+
+/* Select panel and options */
+.mat-mdc-select-panel {
+  background: hsl(220, 15%, 8%) !important;
+  border: 1px solid hsl(220, 10%, 25%) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+  
+  .mat-mdc-option {
+    background: transparent !important;
+    color: hsl(210, 40%, 98%) !important;
+    min-height: 48px !important;
+    padding: 0 16px !important;
+    
+    &:hover:not(.mdc-list-item--disabled) {
+      background: hsl(220, 10%, 20%) !important;
+    }
+    
+    &.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+      background: hsl(142, 76%, 36%, 0.12) !important;
+      color: hsl(142, 76%, 36%) !important;
+      
+      .mdc-list-item__primary-text {
+        color: hsl(142, 76%, 36%) !important;
+      }
+    }
+    
+    &.mat-mdc-option-active {
+      background: hsl(220, 10%, 20%) !important;
+    }
+    
+    .mdc-list-item__primary-text {
+      color: inherit !important;
+    }
+  }
+}
+
+/* Focus and active states */
+.mat-mdc-form-field.mat-focused {
+  .mat-mdc-select-arrow {
+    color: hsl(142, 76%, 36%) !important;
+  }
+  
+  .mdc-line-ripple,
+  .mdc-text-field__ripple,
+  .mat-mdc-form-field-focus-overlay {
+    display: none !important;
+  }
+}
+
+/* Remove Angular Material theme conflicts */
+.mat-app-background {
+  background: transparent !important;
+}
+
+/* Custom animations */
+@keyframes bounce-gentle {
+  0%, 100% { 
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% { 
+    transform: translateY(-10px);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes fade-in {
+  0% { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Utility classes */
+.animate-bounce-gentle {
+  animation: bounce-gentle 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+/* Container improvements */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(220, 15%, 6%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(220, 10%, 18%);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(220, 10%, 25%);
+}
+
+/* Additional Material Design Component fixes */
+.mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: hsl(220, 10%, 18%) !important;
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled) {
+  background-color: hsl(220, 10%, 18%) !important;
+}
+
+/* Eliminación completa de indicadores activos y ripples */
+.mdc-text-field__ripple,
+.mdc-line-ripple,
+.mat-mdc-form-field-ripple,
+.mat-mdc-form-field-focus-overlay {
+  opacity: 0 !important;
+  display: none !important;
+}
+
+.mdc-text-field--filled .mdc-text-field__ripple::before,
+.mdc-text-field--filled .mdc-text-field__ripple::after {
+  display: none !important;
+}

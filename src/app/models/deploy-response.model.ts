@@ -10,6 +10,11 @@ export interface ResponseLevel {
   emoji: string;
   backgroundColor: string;
   textColor: string;
+  message: string;
+  statusColor: string;
+  cardBackgroundColor: string;
+  cardBorderColor: string;
+  glowColor: string;
 }
 
 export interface DeployResponse {

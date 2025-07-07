@@ -80,25 +80,45 @@ export class DeployService {
       level: DeployLevel.YES,
       emoji: '🟢',
       backgroundColor: '#4caf50',
-      textColor: '#ffffff'
+      textColor: '#ffffff',
+      message: '¡SÍ!',
+      statusColor: '#16a249',
+      cardBackgroundColor: 'hsl(142, 76%, 36%, 0.1)',
+      cardBorderColor: 'hsl(142, 76%, 36%, 0.3)',
+      glowColor: 'hsl(142, 76%, 36%, 0.5)'
     },
     {
       level: DeployLevel.CAUTION,
       emoji: '🟡',
       backgroundColor: '#ff9800',
-      textColor: '#ffffff'
+      textColor: '#ffffff',
+      message: 'SÍ... PERO CUIDADO!',
+      statusColor: '#e7b008',
+      cardBackgroundColor: 'hsl(45, 93%, 47%, 0.1)',
+      cardBorderColor: 'hsl(45, 93%, 47%, 0.3)',
+      glowColor: 'hsl(45, 93%, 47%, 0.5)'
     },
     {
       level: DeployLevel.NO,
       emoji: '🔴',
       backgroundColor: '#f44336',
-      textColor: '#ffffff'
+      textColor: '#ffffff',
+      message: '¡NO!',
+      statusColor: '#ef4343',
+      cardBackgroundColor: 'hsl(0, 84%, 60%, 0.1)',
+      cardBorderColor: 'hsl(0, 84%, 60%, 0.3)',
+      glowColor: 'hsl(0, 84%, 60%, 0.5)'
     },
     {
       level: DeployLevel.HELL_NO,
       emoji: '🚫',
       backgroundColor: '#d32f2f',
-      textColor: '#ffffff'
+      textColor: '#ffffff',
+      message: '¡DEFINITIVAMENTE NO!',
+      statusColor: '#931f1f',
+      cardBackgroundColor: 'hsl(0, 65%, 35%, 0.1)',
+      cardBorderColor: 'hsl(0, 65%, 35%, 0.3)',
+      glowColor: 'hsl(0, 65%, 35%, 0.5)'
     }
   ];
 

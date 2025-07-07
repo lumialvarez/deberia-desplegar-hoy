@@ -24,8 +24,7 @@ import { DeployLevel } from './models/deploy-response.model';
     MatProgressSpinnerModule,
     FormsModule
   ],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  templateUrl: './app.html'
 })
 export class App {
   private deployService = inject(DeployService);
@@ -70,6 +69,14 @@ export class App {
   get currentLevelDisplay(): string {
     const level = this.state().currentLevel?.level;
     return level ? level.toString().toUpperCase() : '';
+  }
+
+  get cardBoxShadow(): string {
+    const currentLevel = this.state().currentLevel;
+    if (!currentLevel) {
+      return '0 20px 40px -12px hsl(0, 0%, 50%, 0.5), 0 0 0 1px hsl(0, 0%, 50%, 0.3)';
+    }
+    return `0 20px 40px -12px ${currentLevel.glowColor}, 0 0 0 1px ${currentLevel.cardBorderColor}`;
   }
 
   // Métodos de utilidad para el template
