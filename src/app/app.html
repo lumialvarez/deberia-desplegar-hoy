@@ -37,6 +37,7 @@
         <!-- Decision Card -->
         <div 
           *ngIf="!state().isLoading && !state().error && state().currentResponse" 
+          (click)="onClickOnCard()"
           class="relative p-8 md:p-12 text-center border-2 shadow-2xl transition-all duration-500 ease-in-out transform hover:scale-105 rounded-lg"
           [style.background-color]="state().currentLevel?.cardBackgroundColor"
           [style.border-color]="state().currentLevel?.cardBorderColor"

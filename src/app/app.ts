@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +26,7 @@ import { DeployLevel } from './models/deploy-response.model';
   ],
   templateUrl: './app.html'
 })
-export class App {
+export class App implements OnDestroy {
   private deployService = inject(DeployService);
   
   // Signals del servicio
@@ -37,6 +37,18 @@ export class App {
   public timezones = this.deployService.getTimezones();
   public debugDays = this.deployService.getDebugDays();
   public debugHours = this.deployService.getDebugHours();
+
+  // Escuchar la tecla espacio
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    // Si presiona espacio (código 32 o ' ')
+    if (event.code === 'Space' || event.key === ' ') {
+      // Prevenir scroll de página
+      event.preventDefault();
+      // Ejecutar actualización
+      this.onClickOnCard();
+    }
+  }
 
   // Métodos para manejar selecciones
   onCountryChange(country: Country): void {
@@ -63,6 +75,11 @@ export class App {
   onDebugHourChange(hour: number): void {
     const currentState = this.state();
     this.deployService.setDebugDateTime(currentState.debugDay, hour);
+  }
+
+  onClickOnCard(): void {
+    // Forzar actualización manual al hacer clic en la tarjeta o presionar espacio
+    this.deployService.refreshResponse();
   }
 
   // Getters para el template
@@ -102,5 +119,9 @@ export class App {
       day: 'numeric',
       timeZone: currentState.selectedTimezone?.value || 'UTC'
     });
+  }
+
+  ngOnDestroy(): void {
+    this.deployService.destroyTimeUpdates();
   }
 }

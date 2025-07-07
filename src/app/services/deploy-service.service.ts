@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError, catchError, map, switchMap, delay } from 'rxjs';
+import { Observable, of, throwError, catchError, map, switchMap, delay, interval, takeUntil, Subject } from 'rxjs';
 import { Country, Timezone } from '../models/location.model';
 import { DeployResponse, ResponseLevel, ResponseData, LevelConfiguration, DeployLevel } from '../models/deploy-response.model';
 import { AsyncKeyword } from 'typescript';
@@ -44,6 +44,10 @@ export class DeployService {
 
   // Cache de mensajes por idioma
   private messagesCache: { [lang: string]: any } = {};
+
+  // Manejo del intervalo automático
+  private destroy$ = new Subject<void>();
+  private timeInterval$ = interval(5000); // 5 segundos
 
   // Computed signals
   public state = this.stateSignal.asReadonly();
@@ -126,6 +130,7 @@ export class DeployService {
     this.checkDebugMode();
     this.loadLevelConfiguration().subscribe(() => {
       this.initializeApp();
+      this.startTimeUpdates();
     });
   }
 
@@ -222,18 +227,44 @@ export class DeployService {
   }
 
   public getDebugHours(): { value: number; label: string }[] {
-    const hours = [];
-    for (let i = 0; i < 24; i++) {
-      hours.push({
-        value: i,
-        label: `${i.toString().padStart(2, '0')}:00`
-      });
-    }
-    return hours;
+    return Array.from({ length: 24 }, (_, i) => ({
+      value: i,
+      label: `${i.toString().padStart(2, '0')}:00`
+    }));
   }
 
   public getLevelConfiguration(): LevelConfiguration | null {
     return this.stateSignal().levelConfiguration;
+  }
+
+  public destroyTimeUpdates(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private startTimeUpdates(): void {
+    this.timeInterval$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.updateCurrentTime();
+    });
+  }
+
+  private updateCurrentTime(): void {
+    const currentState = this.stateSignal();
+    if (!currentState.selectedCountry || !currentState.selectedTimezone) {
+      return;
+    }
+    try {
+      const currentTime = new Date();
+
+      this.stateSignal.update(state => ({
+        ...state,
+        currentTime
+      }));
+    } catch (error) {
+      console.error('Error al actualizar el tiempo:', error);
+    }
   }
 
   // Métodos privados
