@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError, catchError, map, switchMap, delay, interval, takeUntil, Subject } from 'rxjs';
 import { Country, Timezone } from '../models/location.model';
 import { DeployResponse, ResponseLevel, ResponseData, LevelConfiguration, DeployLevel } from '../models/deploy-response.model';
-import { AsyncKeyword } from 'typescript';
 
 interface AppState {
   isLoading: boolean;
