@@ -35,7 +35,7 @@ jobs:
         with:
           file: ./coverage/lcov.info
           flags: unittests
-          name: codecov-umbrella
+          name: codecov-pr
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
           
