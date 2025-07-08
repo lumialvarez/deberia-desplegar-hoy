@@ -18,9 +18,6 @@ jobs:
       - name: Show version
         run: echo ${{ env.APP_VERSION }}
 
-      - name: Replace secrets
-        run: python replace-variables.py ./src/app/app.module.ts GOOGLE_ID_TRACKING=${{ secrets.GOOGLE_ID_TRACKING }}
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
