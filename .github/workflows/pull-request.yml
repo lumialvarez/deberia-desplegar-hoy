@@ -37,17 +37,10 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
           
       - name: Upload coverage reports to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports
           path: coverage/
-          
-      - name: Comment PR with coverage
-        uses: 5monkeys/cobertura-action@master
-        with:
-          path: coverage/cobertura-coverage.xml
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          minimum_coverage: 75
-          fail_below_threshold: false

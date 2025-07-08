@@ -1,0 +1,60 @@
+codecov:
+  require_ci_to_pass: yes
+  notify:
+    after_n_builds: 1
+    wait_for_ci: yes
+
+coverage:
+  precision: 2
+  round: down
+  range: "50...90"
+  
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+        base: auto
+        if_no_uploads: error
+        if_not_found: success
+        if_ci_failed: error
+        only_pulls: false
+        
+    patch:
+      default:
+        target: 60%
+        threshold: 5%
+        base: auto
+        if_no_uploads: error
+        if_not_found: success
+        if_ci_failed: error
+        only_pulls: true
+
+comment:
+  layout: "diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: yes
+  branches:
+    - main
+    - develop
+
+ignore:
+  - "*.spec.ts"
+  - "*.spec.js"
+  - "**/*.spec.ts"
+  - "**/*.spec.js"
+  - "src/test.ts"
+  - "src/**/*.spec.ts"
+  - "karma.conf.js"
+  - "src/environments/*"
+  - "src/assets/*"
+  - "src/main.ts"
+  - "src/polyfills.ts"
+
+flags:
+  unittests:
+    paths:
+      - src/app/
+    carryforward: true 
