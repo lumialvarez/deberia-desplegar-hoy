@@ -1,4 +1,5 @@
 # ¿Deberías Desplegar Hoy?
+[![codecov](https://codecov.io/github/lumialvarez/deberia-desplegar-hoy/graph/badge.svg?token=VI1LO5KXEA)](https://codecov.io/github/lumialvarez/deberia-desplegar-hoy)
 
 ## 🤔 ¿Qué es esto?
 
