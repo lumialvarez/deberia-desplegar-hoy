@@ -4,13 +4,12 @@
 module.exports = function (config) {
   config.set({
     basePath: '',
-    frameworks: ['jasmine', '@angular/build'],
+    frameworks: ['jasmine'],
     plugins: [
-      'karma-jasmine',
-      'karma-chrome-launcher',
-      'karma-jasmine-html-reporter',
-      'karma-coverage',
-      '@angular/build/karma'
+      require('karma-jasmine'),
+      require('karma-chrome-launcher'),
+      require('karma-jasmine-html-reporter'),
+      require('karma-coverage')
     ],
     client: {
       jasmine: {
@@ -25,17 +24,23 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/deberia-desplegar-hoy'),
+      dir: require('path').join(__dirname, './coverage'),
       subdir: '.',
       reporters: [
         { type: 'html' },
         { type: 'text-summary' },
         { type: 'lcovonly' },
-        { type: 'cobertura' }
+        { type: 'cobertura', file: 'cobertura-coverage.xml' }
       ]
     },
-    reporters: ['progress', 'kjhtml'],
+    reporters: ['progress', 'kjhtml', 'coverage'],
+    port: 9876,
+    colors: true,
+    logLevel: config.LOG_INFO,
+    autoWatch: true,
     browsers: ['Chrome'],
+    singleRun: false,
+    restartOnFileChange: true,
     customLaunchers: {
       ChromeHeadless: {
         base: 'Chrome',
@@ -49,7 +54,6 @@ module.exports = function (config) {
           '--headless'
         ]
       }
-    },
-    restartOnFileChange: true
+    }
   });
 }; 
