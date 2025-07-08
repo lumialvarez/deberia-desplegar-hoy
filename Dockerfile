@@ -10,10 +10,10 @@ WORKDIR /app
 COPY . ./
 
 # Install all the dependencies
-RUN npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps --omit=dev
 
 # Generate the build of the application
-RUN npm run build --omit=dev
+RUN npm run build
 
 
 # Stage 2: Serve app with nginx server
