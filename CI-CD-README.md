@@ -20,10 +20,10 @@ El workflow de Pull Request incluye los siguientes pasos:
 ```yaml
 - uses: actions/setup-node@v4
   with:
-    node-version: '18'
+    node-version: '20'
     cache: 'npm'
 ```
-- Configura Node.js versión 18
+- Configura Node.js versión 20 (requerida por Angular CLI)
 - Habilita el cache de npm para acelerar builds
 
 #### 3. **Instalación de dependencias**
