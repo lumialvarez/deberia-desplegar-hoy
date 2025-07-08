@@ -10,7 +10,7 @@ WORKDIR /app
 COPY . ./
 
 # Install all the dependencies
-RUN npm install --legacy-peer-deps --omit=dev
+RUN npm install --legacy-peer-deps
 
 # Generate the build of the application
 RUN npm run build
