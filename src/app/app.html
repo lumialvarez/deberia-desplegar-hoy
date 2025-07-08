@@ -1,0 +1,219 @@
+<div class="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
+  <div class="container mx-auto py-8 px-4">
+    <div class="space-y-12">
+      
+      <!-- Main Deploy Decision -->
+      <div class="flex flex-col items-center space-y-8 max-w-4xl mx-auto px-4">
+        
+        <!-- Main Question -->
+        <div class="text-center">
+          <h1 class="text-4xl md:text-6xl font-bold text-foreground mb-8 p-8 tracking-tight">
+            {{ state().appTitle }}
+          </h1>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="state().isLoading" class="flex items-center justify-center min-h-[400px]">
+          <div class="text-center space-y-4">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-deploy-yes mx-auto"></div>
+            <div class="text-2xl text-muted-foreground animate-pulse">Analizando el momento perfecto...</div>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="state().error" class="flex items-center justify-center min-h-[400px]">
+          <div class="text-center space-y-4 p-8 bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg">
+            <div class="text-deploy-no text-4xl">⚠️</div>
+            <p class="text-lg text-muted-foreground">{{ state().error }}</p>
+            <button 
+              (click)="onRefresh()" 
+              class="px-6 py-3 bg-deploy-yes text-deploy-yes-foreground rounded-lg hover:bg-deploy-yes/90 transition-colors"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+
+        <!-- Decision Card -->
+        <div 
+          *ngIf="!state().isLoading && !state().error && state().currentResponse" 
+          (click)="onClickOnCard()"
+          class="relative p-8 md:p-12 text-center border-2 shadow-2xl transition-all duration-500 ease-in-out transform hover:scale-105 rounded-lg"
+          [style.background-color]="state().currentLevel?.cardBackgroundColor"
+          [style.border-color]="state().currentLevel?.cardBorderColor"
+          [style.box-shadow]="cardBoxShadow"
+        >
+          <!-- Glow effect -->
+          <div 
+            class="absolute inset-0 rounded-lg opacity-20 blur-xl animate-pulse-glow"
+            [style.background-color]="state().currentLevel?.glowColor"
+          ></div>
+          
+          <div class="relative z-10">
+            <!-- Status Text -->
+            <div 
+              class="text-4xl md:text-5xl sm:text-4xl font-black mb-6 tracking-wider drop-shadow-2xl animate-bounce-gentle"
+              [style.color]="state().currentLevel?.statusColor"
+            >
+              {{ state().currentLevel?.message }}
+            </div>
+
+            <!-- Message -->
+            <div 
+              class="text-xl md:text-3xl font-medium leading-relaxed px-4 animate-fade-in"
+              style="color: hsl(210, 40%, 98%)"
+            >
+              {{ state().currentResponse?.message }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Initial State -->
+        <div *ngIf="!state().isLoading && !state().error && !state().currentResponse" class="text-center space-y-4 p-8">
+          <div class="text-6xl">🌍</div>
+          <p class="text-xl text-muted-foreground">Selecciona tu ubicación para obtener una respuesta personalizada</p>
+        </div>
+
+        <!-- Time and Date -->
+        <div *ngIf="state().currentTime" class="text-center space-y-2">
+          <div class="text-2xl md:text-3xl font-bold text-foreground">
+            {{ getCurrentTimeString() }}
+          </div>
+          <div class="text-lg md:text-xl text-muted-foreground capitalize">
+            {{ getCurrentDateString() }}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Timezone Selector -->
+      <div class="flex justify-center">
+        <div class="p-6 bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg max-w-2xl w-full">
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-foreground text-center">
+              Configuración de Zona Horaria
+            </h3>
+            
+            <!-- Country and Timezone selectors -->
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+              <!-- Country Selector -->
+              <div class="flex-1 max-w-xs">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-select
+                    [value]="state().selectedCountry"
+                    (selectionChange)="onCountryChange($event.value)"
+                    placeholder="Selecciona tu país">
+                    <mat-option [value]="null">Detectar automáticamente</mat-option>
+                    <mat-option *ngFor="let country of countries" [value]="country">
+                      {{ country.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <!-- Timezone Selector -->
+              <div class="flex-1 max-w-xs">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-select
+                    [value]="state().selectedTimezone"
+                    (selectionChange)="onTimezoneChange($event.value)"
+                    placeholder="Selecciona zona horaria">
+                    <mat-option [value]="null">Detectar automáticamente</mat-option>
+                    <mat-option *ngFor="let timezone of timezones" [value]="timezone">
+                      {{ timezone.value }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Detect Location Button -->
+            <div class="flex justify-center">
+              <button
+                (click)="onDetectLocation()"
+                [disabled]="state().isLoading"
+                class="px-6 py-3 bg-card hover:bg-accent border border-border/50 rounded-lg transition-colors flex items-center gap-2"
+              >
+                <mat-icon>my_location</mat-icon>
+                {{ state().isLoading ? 'Detectando...' : 'Detectar ubicación' }}
+              </button>
+            </div>
+
+            <!-- Current selection display -->
+            <div *ngIf="state().selectedCountry && state().selectedTimezone" class="text-center text-sm text-muted-foreground">
+              Ubicación actual: <span class="font-medium text-foreground">
+                {{ state().selectedCountry?.name }} - {{ state().selectedTimezone?.value }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Debug Controls -->
+      <div *ngIf="state().isDebugMode" class="flex justify-center">
+        <div class="p-6 bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg max-w-2xl w-full">
+          <h3 class="text-lg font-semibold text-foreground text-center mb-4">Modo Debug</h3>
+          <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+            <div class="flex-1 max-w-xs">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-select
+                  [value]="state().debugDay"
+                  (selectionChange)="onDebugDayChange($event.value)"
+                  placeholder="Selecciona día">
+                  <mat-option [value]="null">Usar día actual</mat-option>
+                  <mat-option *ngFor="let day of debugDays" [value]="day.value">
+                    {{ day.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="flex-1 max-w-xs">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-select
+                  [value]="state().debugHour"
+                  (selectionChange)="onDebugHourChange($event.value)"
+                  placeholder="Selecciona hora">
+                  <mat-option [value]="null">Usar hora actual</mat-option>
+                  <mat-option *ngFor="let hour of debugHours" [value]="hour.value">
+                    {{ hour.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="text-center space-y-4 pt-8 border-t border-border/20">
+        <div class="flex items-center justify-center gap-2 text-muted-foreground">
+          <mat-icon class="text-red-400">favorite</mat-icon>
+          <span>¿Te gusta este proyecto?</span>
+        </div>
+        
+        <p class="text-sm text-muted-foreground max-w-2xl mx-auto">
+          Esta app está inspirada en la eterna pregunta que todos los desarrolladores nos hacemos. 
+          Si quieres contribuir con más frases divertidas, reportar bugs o mejorar la lógica, ¡tu ayuda será bienvenida!
+        </p>
+        
+        <a 
+          href="https://github.com/lumialvarez/deberia-desplegar-hoy" 
+          target="_blank"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-card/80 hover:bg-accent/80 border border-border/50 rounded-lg transition-colors"
+        >
+          <mat-icon>code</mat-icon>
+          Contribuir en GitHub
+        </a>
+        
+        <div class="text-xs text-muted-foreground/60 pt-4">
+          <p>Hecho con ❤️ para la comunidad de desarrolladores</p>
+          <p class="mt-1">
+            Basado en el sentido común y las experiencias traumáticas de deploys en viernes
+          </p>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+</div>

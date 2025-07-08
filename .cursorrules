@@ -1,0 +1,752 @@
+# Reglas de Cursor para Aplicación Angular
+
+## 🎯 Objetivo General
+Desarrollar una aplicación Angular moderna, mantenible y escalable siguiendo las mejores prácticas y patrones de diseño establecidos.
+
+## 📁 Estructura del Proyecto
+
+### Organización de Carpetas
+```
+src/
+├── app/
+│   ├── core/                    # Servicios singleton, guards, interceptors
+│   │   ├── guards/
+│   │   ├── interceptors/
+│   │   ├── services/
+│   │   └── models/
+│   ├── shared/                  # Componentes, pipes, directivas reutilizables
+│   │   ├── components/
+│   │   ├── pipes/
+│   │   ├── directives/
+│   │   └── utils/
+│   ├── features/                # Módulos de características específicas
+│   │   ├── auth/
+│   │   ├── dashboard/
+│   │   └── [feature-name]/
+│   ├── layout/                  # Componentes de estructura (header, sidebar, footer)
+│   └── app.component.*
+├── assets/
+│   ├── images/
+│   ├── icons/
+│   └── styles/
+└── environments/
+```
+
+## 🏗️ Arquitectura y Patrones
+
+### Principios de Diseño
+- **Separación de Responsabilidades**: Cada componente/servicio tiene una responsabilidad única
+- **Inyección de Dependencias**: Usar DI para servicios y configuración
+- **Lazy Loading**: Implementar carga diferida para módulos grandes
+- **OnPush Change Detection**: Usar estrategia OnPush para mejor rendimiento
+- **Reactive Programming**: Preferir RxJS sobre callbacks tradicionales
+
+### Patrones de Componentes
+```typescript
+// Estructura estándar de componente
+@Component({
+  selector: 'app-feature-name',
+  templateUrl: './feature-name.component.html',
+  styleUrls: ['./feature-name.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class FeatureNameComponent implements OnInit, OnDestroy {
+  // Properties
+  private destroy$ = new Subject<void>();
+  
+  // Constructor con DI
+  constructor(
+    private service: FeatureService,
+    private store: Store
+  ) {}
+  
+  // Lifecycle hooks
+  ngOnInit(): void {
+    // Inicialización
+  }
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}
+```
+
+## 🎨 Estilos y UI/UX
+
+### Framework de UI
+- **Angular Material**: Componentes base del sistema de diseño
+- **Tailwind CSS**: Utilidades CSS para estilos personalizados
+- **SCSS**: Variables, mixins y funciones para consistencia
+
+### Variables de Diseño
+```scss
+// _variables.scss
+:root {
+  // Colores
+  --primary-color: #1976d2;
+  --success-color: #4caf50;
+  --warning-color: #ff9800;
+  --error-color: #f44336;
+  
+  // Tipografía
+  --font-family: 'Roboto', sans-serif;
+  --font-size-base: 16px;
+  --line-height-base: 1.5;
+  
+  // Espaciado
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  // Breakpoints
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+}
+```
+
+## 🔧 Configuración y Herramientas
+
+### ESLint y Prettier
+```json
+{
+  "extends": [
+    "@angular-eslint/recommended",
+    "@angular-eslint/template/recommended"
+  ],
+  "rules": {
+    "@angular-eslint/component-selector": [
+      "error",
+      {
+        "type": "element",
+        "prefix": "app",
+        "style": "kebab-case"
+      }
+    ],
+    "@angular-eslint/directive-selector": [
+      "error",
+      {
+        "type": "attribute",
+        "prefix": "app",
+        "style": "camelCase"
+      }
+    ]
+  }
+}
+```
+
+### Husky y Git Hooks
+- Pre-commit: Linting y formateo automático
+- Pre-push: Tests unitarios y e2e
+- Commit message: Convenciones de Conventional Commits
+
+## 📊 Estado y Gestión de Datos
+
+### NgRx Store (Para aplicaciones complejas)
+```typescript
+// Estructura del store
+interface AppState {
+  auth: AuthState;
+  user: UserState;
+  [feature]: FeatureState;
+}
+
+// Actions
+export const featureActions = createActionGroup({
+  source: 'Feature',
+  events: {
+    'Load Items': emptyProps(),
+    'Load Items Success': props<{ items: Item[] }>(),
+    'Load Items Failure': props<{ error: string }>()
+  }
+});
+
+// Reducers
+export const featureReducer = createReducer(
+  initialState,
+  on(featureActions.loadItems, state => ({ ...state, loading: true })),
+  on(featureActions.loadItemsSuccess, (state, { items }) => ({ 
+    ...state, 
+    items, 
+    loading: false 
+  }))
+);
+```
+
+### Servicios con RxJS
+```typescript
+@Injectable({
+  providedIn: 'root'
+})
+export class DataService {
+  private apiUrl = environment.apiUrl;
+  
+  constructor(private http: HttpClient) {}
+  
+  getItems(): Observable<Item[]> {
+    return this.http.get<Item[]>(`${this.apiUrl}/items`).pipe(
+      retry(3),
+      catchError(this.handleError)
+    );
+  }
+  
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    console.error('An error occurred:', error);
+    return throwError(() => new Error('Something went wrong'));
+  }
+}
+```
+
+## 🧪 Testing
+
+### Testing Unitario
+```typescript
+describe('FeatureComponent', () => {
+  let component: FeatureComponent;
+  let fixture: ComponentFixture<FeatureComponent>;
+  let service: jasmine.SpyObj<FeatureService>;
+
+  beforeEach(async () => {
+    const spy = jasmine.createSpyObj('FeatureService', ['getData']);
+    
+    await TestBed.configureTestingModule({
+      declarations: [FeatureComponent],
+      providers: [
+        { provide: FeatureService, useValue: spy }
+      ]
+    }).compileComponents();
+    
+    service = TestBed.inject(FeatureService) as jasmine.SpyObj<FeatureService>;
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
+```
+
+### Testing E2E con Playwright
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('should display welcome message', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('h1')).toContainText('Welcome');
+});
+```
+
+## 🚀 Performance y Optimización
+
+### Estrategias de Rendimiento
+- **Lazy Loading**: Cargar módulos bajo demanda
+- **Preloading**: Precargar módulos críticos
+- **Virtual Scrolling**: Para listas grandes
+- **TrackBy Functions**: Optimizar ngFor
+- **OnPush Change Detection**: Reducir ciclos de detección
+
+### Bundle Optimization
+```typescript
+// angular.json
+{
+  "projects": {
+    "app": {
+      "architect": {
+        "build": {
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+## 🔒 Seguridad
+
+### Mejores Prácticas
+- **XSS Prevention**: Sanitizar inputs del usuario
+- **CSRF Protection**: Tokens en requests
+- **Content Security Policy**: Headers de seguridad
+- **HTTPS Only**: En producción
+- **Input Validation**: Validación tanto cliente como servidor
+
+### Guards de Autenticación
+```typescript
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthGuard implements CanActivate {
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  canActivate(): boolean {
+    if (this.authService.isAuthenticated()) {
+      return true;
+    }
+    
+    this.router.navigate(['/login']);
+    return false;
+  }
+}
+```
+
+## 📱 Responsive Design
+
+### Breakpoints y Media Queries
+```scss
+// Mobile First approach
+.container {
+  padding: var(--spacing-md);
+  
+  @media (min-width: 768px) {
+    padding: var(--spacing-lg);
+  }
+  
+  @media (min-width: 1024px) {
+    padding: var(--spacing-xl);
+  }
+}
+```
+
+## 🌐 Internacionalización
+
+### i18n Setup
+```typescript
+// app.module.ts
+import { HttpClient } from '@angular/common/http';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
+@NgModule({
+  imports: [
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      },
+      defaultLanguage: 'es'
+    })
+  ]
+})
+```
+
+## 📝 Convenciones de Código
+
+### Nomenclatura
+- **Componentes**: `feature-name.component.ts`
+- **Servicios**: `feature.service.ts`
+- **Interfaces**: `feature.interface.ts`
+- **Enums**: `feature.enum.ts`
+- **Constants**: `feature.constants.ts`
+
+### Imports Organizados
+```typescript
+// Angular imports
+import { Component, OnInit } from '@angular/core';
+
+// Third-party imports
+import { Observable } from 'rxjs';
+
+// Application imports
+import { FeatureService } from './feature.service';
+import { FeatureModel } from './models/feature.model';
+```
+
+## 🔄 CI/CD
+
+### Pipeline para Pull Requests (Solo Tests)
+```yaml
+# .github/workflows/pull-request.yml
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run linting
+        run: npm run lint
+        
+      - name: Run unit tests
+        run: npm test
+        
+      - name: Run e2e tests
+        run: npm run e2e
+        
+      - name: Check bundle size
+        run: npm run build:analyze
+        
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+```
+
+### Pipeline para Main Branch (Tests + Deploy)
+```yaml
+# .github/workflows/deploy-production.yml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run linting
+        run: npm run lint
+        
+      - name: Run unit tests
+        run: npm test
+        
+      - name: Run e2e tests
+        run: npm run e2e
+        
+      - name: Build application
+        run: npm run build:prod
+        
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-files
+          path: dist/
+          
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run security audit
+        run: npm audit --audit-level=moderate
+        
+      - name: Run dependency check
+        run: npm audit --audit-level=high
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [test, security-scan]
+    environment: staging
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-files
+          path: dist/
+          
+      - name: Deploy to staging
+        run: |
+          echo "Deploying to staging environment..."
+          # Aquí irían los comandos específicos para tu plataforma
+          # Ejemplo para Vercel:
+          # npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+          
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests on staging..."
+          # Tests básicos para verificar que el deploy funcionó
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    environment: production
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-files
+          path: dist/
+          
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production environment..."
+          # Aquí irían los comandos específicos para tu plataforma
+          # Ejemplo para Vercel:
+          # npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+          
+      - name: Notify deployment
+        run: |
+          echo "Production deployment completed successfully!"
+          # Aquí podrías agregar notificaciones a Slack, Discord, etc.
+```
+
+### Configuración de Environments
+```yaml
+# .github/environments/staging.yml
+name: staging
+url: https://staging.yourapp.com
+
+# .github/environments/production.yml
+name: production
+url: https://yourapp.com
+```
+
+### Scripts de Package.json
+```json
+{
+  "scripts": {
+    "build:prod": "ng build --configuration production",
+    "build:analyze": "ng build --stats-json && npx webpack-bundle-analyzer dist/stats.json",
+    "test:ci": "ng test --watch=false --code-coverage",
+    "e2e:ci": "ng e2e --configuration ci",
+    "lint": "ng lint",
+    "lint:fix": "ng lint --fix"
+  }
+}
+```
+
+## 📚 Documentación
+
+### README.md Estructura
+```markdown
+# ¿Deberías Desplegar Hoy?
+
+## 🎯 Descripción
+Una aplicación web inteligente que responde a la pregunta que todo desarrollador se hace mentalmente: **"¿Es conveniente hacer un deploy ahora?"**
+
+La aplicación analiza el día de la semana, la hora y la zona horaria para dar una respuesta contextual y divertida sobre si es el momento adecuado para desplegar tu aplicación.
+
+## 🌍 Características Principales
+
+### 📅 Análisis Temporal Inteligente
+- **Detección automática de ubicación**: Identifica el país y zona horaria del visitante
+- **Selección manual**: Permite al usuario elegir país/zona horaria e idioma
+- **Respuestas contextuales**: 
+  - 🟢 **Lunes por la mañana**: "¡SÍ! Es el mejor momento del mundo para desplegar"
+  - 🟡 **Miércoles**: "Hmm... podría ser, pero ten cuidado"
+  - 🔴 **Viernes por la tarde**: "¡ABSOLUTAMENTE NO! ¿Estás loco?"
+  - 🌙 **Fines de semana**: "¿En serio? ¿Un fin de semana?"
+
+### 🎲 Frases Aleatorias y Personalizadas
+- **Base de frases pre-generadas** para cada contexto temporal
+- **Personalización por país**: Adaptación al estilo de hablar de cada región
+- **Tono humorístico**: Respuestas divertidas pero útiles
+- **Múltiples idiomas**: Soporte para español, inglés, portugués, etc.
+
+### 🎨 Interfaz Intuitiva
+- **Diseño minimalista**: Enfoque en la respuesta principal
+- **Animaciones suaves**: Transiciones elegantes entre estados
+- **Responsive**: Funciona perfectamente en móvil y desktop
+- **Modo oscuro/claro**: Adaptación a preferencias del usuario
+
+## 🚀 Tecnologías
+- **Angular 17+**: Framework principal con las últimas características
+- **TypeScript**: Tipado estático para mayor robustez
+- **Angular Material**: Componentes UI consistentes y accesibles
+- **Tailwind CSS**: Estilos utilitarios y responsive
+- **NgRx**: Gestión de estado para funcionalidades avanzadas
+- **i18n**: Internacionalización completa
+- **Geolocalización**: Detección automática de ubicación
+- **PWA**: Capacidades de aplicación web progresiva
+
+## 📱 Funcionalidades
+
+### Detección Automática
+- Geolocalización por IP
+- Detección de zona horaria del navegador
+- Identificación del idioma preferido
+
+### Personalización
+- Selector de país/región
+- Selector de zona horaria
+- Selector de idioma
+- Modo de respuesta (conservador/divertido)
+
+### Respuestas Contextuales
+- **Lunes 9:00 AM**: "¡SÍ! Es lunes, todo el mundo está fresco y listo para arreglar bugs"
+- **Lunes 3:00 PM**: "¡Adelante! Apúrate que se acaba el día"
+- **Lunes 5:00 PM**: "Sí, pero ese despliegue podría esperar un día más, ¿no crees?"
+- **Lunes 7:00 PM**: "¡NO! Ya es hora de cenar, mañana será otro día"
+- **Miércoles 9:00 AM**: "¡SÍ! Tienes tiempo, despliega"
+- **Miércoles 4:00 PM**: "Podría ser... pero ¿ya probaste todo en staging?"
+- **Miércoles 6:30 PM**: "¡NO! La jornada laboral terminó, descansa"
+- **Jueves 9:00 AM**: "Hmm... ¿estás seguro? Aún tienes tiempo para pensarlo"
+- **Jueves 3:00 PM**: "Mejor espera al lunes, ¿no?"
+- **Jueves 7:00 PM**: "¡NO! Es tarde, mañana será mejor"
+- **Viernes 9:00 AM**: "Tal vez... Es viernes, ya probaste lo suficiente. ¿Qué tal el lunes?"
+- **Viernes 1:00 PM**: "¡NO! Es viernes, nadie quiere trabajar el fin de semana"
+- **Viernes 5:00 PM**: "¡ABSOLUTAMENTE NO! ¿Estás loco? Es viernes a las 5 PM"
+- **Viernes 6:00 PM**: "¡NO! Ya es fin de semana, ¡disfruta!"
+- **Sábado 2:00 AM**: "¿Estás despierto a las 2 AM? Mejor duerme y despliega mañana"
+- **Domingo 11:00 AM**: "¿En serio? ¿Un domingo? Disfruta tu día libre"
+
+## 🎯 Casos de Uso
+- **Desarrolladores indecisos**: "¿Deploy ahora o espero?"
+- **Equipos de desarrollo**: Discusión sobre timing de deploys
+- **DevOps**: Evaluación rápida de riesgos temporales
+- **Momentos de humor**: Alivio en momentos de estrés del desarrollo
+
+## 🛠️ Instalación
+```bash
+# Clonar el repositorio
+git clone https://github.com/lumialvarez/deberia-desplegar-hoy.git
+
+# Instalar dependencias
+npm install
+
+# Configurar variables de entorno
+cp .env.example .env
+```
+
+## 🚀 Desarrollo
+```bash
+# Servidor de desarrollo
+npm start
+
+# Build de desarrollo
+npm run build:dev
+
+# Análisis de bundle
+npm run build:analyze
+```
+
+## 🏗️ Build y Deploy
+```bash
+# Build de producción
+npm run build:prod
+
+# Preview del build
+npm run preview
+
+# Deploy automático (via CI/CD)
+git push origin main
+```
+
+## 🧪 Testing
+```bash
+# Tests unitarios
+npm test
+
+# Tests e2e
+npm run e2e
+
+# Coverage report
+npm run test:coverage
+```
+
+## 🌐 Configuración de Idiomas
+La aplicación soporta múltiples idiomas con frases adaptadas a cada cultura:
+
+### Español (España)
+- "¡Venga ya! Es lunes por la mañana, ¡despliega sin miedo!"
+
+### Español (México)
+- "¡Órale! Es lunes temprano, ¡échale ganas al deploy!"
+
+### Español (Argentina)
+- "¡Che! Es lunes a la mañana, ¡mandale mecha al deploy!"
+
+### Inglés (US)
+- "Hell yeah! It's Monday morning, time to deploy!"
+
+### Portugués (Brasil)
+- "Valeu! É segunda de manhã, hora de fazer deploy!"
+
+## 📊 Métricas y Analytics
+- Tiempo de respuesta de la aplicación
+- Frases más populares por región
+- Horarios más consultados
+- Idiomas más utilizados
+
+## 🤝 Contribuir
+¿Tienes frases divertidas para tu país? ¡Contribuye!
+
+1. Fork el proyecto
+2. Agrega frases en tu idioma/región
+3. Crea un Pull Request
+4. ¡Mantengamos el humor global!
+
+## 📄 Licencia
+MIT License - ¡Siéntete libre de usar y modificar!
+
+## 🙏 Agradecimientos
+A todos los desarrolladores que alguna vez se preguntaron: "¿Debería desplegar hoy?"
+```
+
+## 🎯 Metas de Calidad
+
+### Métricas Objetivo
+- **Lighthouse Score**: >90 en todas las categorías
+- **Bundle Size**: <500KB inicial
+- **First Contentful Paint**: <1.5s
+- **Time to Interactive**: <3.5s
+- **Test Coverage**: >80%
+
+### Monitoreo
+- **Error Tracking**: Sentry o similar
+- **Performance Monitoring**: Google Analytics, Web Vitals
+- **User Analytics**: Hotjar, Google Analytics
+
+---
+
+## 💡 Consejos Adicionales
+
+1. **Mantén el código simple**: Evita over-engineering
+2. **Documenta decisiones importantes**: ADRs (Architecture Decision Records)
+3. **Code Reviews**: Siempre revisa el código antes de merge
+4. **Refactoring continuo**: Mejora el código constantemente
+5. **Mantén dependencias actualizadas**: npm audit regularmente
+6. **Usa TypeScript strict mode**: Para mejor type safety
+7. **Implementa error boundaries**: Para manejo de errores robusto
+8. **Optimiza imágenes**: WebP, lazy loading, responsive images 

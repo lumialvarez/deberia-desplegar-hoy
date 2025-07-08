@@ -1,0 +1,45 @@
+[
+  {
+    "dayOfWeek": [0, 6],
+    "ranges": [
+      { "startHour": 0, "endHour": 23, "level": "hell-no" }
+    ]
+  },
+  {
+    "dayOfWeek": [1],
+    "ranges": [
+      { "startHour": 0, "endHour": 5,"level": "caution" },
+      { "startHour": 6, "endHour": 15, "level": "yes" },
+      { "startHour": 16, "endHour": 18, "level": "caution" },
+      { "startHour": 19, "endHour": 23, "level": "no" }
+    ]
+  },
+  {
+    "dayOfWeek": [2, 3],
+    "ranges": [
+      { "startHour": 0, "endHour": 5, "level": "caution" },
+      { "startHour": 6, "endHour": 13, "level": "yes" },
+      { "startHour": 14, "endHour": 16, "level": "caution" },
+      { "startHour": 17, "endHour": 23, "level": "no" }
+    ]
+  },
+  {
+    "dayOfWeek": [4],
+    "ranges": [
+      { "startHour": 0, "endHour": 5, "level": "caution" },
+      { "startHour": 6, "endHour": 12, "level": "yes" },
+      { "startHour": 13, "endHour": 15, "level": "caution" },
+      { "startHour": 16, "endHour": 23, "level": "no" }
+    ]
+  },
+  {
+    "dayOfWeek": [5],
+    "ranges": [
+      { "startHour": 0, "endHour": 5, "level": "caution" },
+      { "startHour": 6, "endHour": 8, "level": "yes" },
+      { "startHour": 9, "endHour": 11, "level": "caution" },
+      { "startHour": 12, "endHour": 16, "level": "no" },
+      { "startHour": 17, "endHour": 23, "level": "hell-no" }
+    ]
+  }
+] 
