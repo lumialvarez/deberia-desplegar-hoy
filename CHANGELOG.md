@@ -3,6 +3,10 @@ Deberia desplegar hoy
 
 ## [Unreleased]
 
+## [0.0.4] - 27/07/2025
+### Fixed
+- Change github workflows and Dockerfile
+
 ## [0.0.3] - 07/07/2025
 ### Fixed
 - Add Dockerfile

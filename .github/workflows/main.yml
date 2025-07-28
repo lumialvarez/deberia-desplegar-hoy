@@ -10,26 +10,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Run linting
         run: npm run lint
         continue-on-error: true
-        
+
       - name: Run unit tests with coverage
         run: npm run test:ci
-        
+
       - name: Build application
         run: npm run build:prod
-        
+
       - name: Upload coverage to Codecov (Official)
         uses: codecov/codecov-action@v4
         with:
@@ -38,19 +38,19 @@ jobs:
           name: codecov-main
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
-          
+
       - name: Upload coverage reports to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports-main
           path: coverage/
-          
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: dist/
-          
+
       - name: Create coverage summary
         run: |
           echo "## 📊 Coverage Report" >> $GITHUB_STEP_SUMMARY
@@ -70,20 +70,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Run security audit
         run: npm audit --audit-level=moderate
         continue-on-error: true
-        
+
       - name: Run dependency check
         run: npm audit --audit-level=high
         continue-on-error: true
@@ -93,12 +93,34 @@ jobs:
     needs: [test-and-build, security-scan]
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set env
+        run: echo "APP_VERSION=$(grep -m 1 -Po '[0-9]+[.][0-9]+[.][0-9]+' CHANGELOG.md)" >> $GITHUB_ENV
+
+      - name: Show version
+        run: echo ${{ env.APP_VERSION }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Build
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          name: build-artifacts
-          path: dist/
-          
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: lmalvarez/deberia-desplegar-hoy:${{ env.APP_VERSION }},lmalvarez/deberia-desplegar-hoy:latest
+
       - name: Deployment ready notification
         run: |
           echo "## 🚀 Deployment Ready" >> $GITHUB_STEP_SUMMARY
@@ -108,4 +130,4 @@ jobs:
           echo "- ✅ Security scan completed" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Build artifacts ready" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🎯 Ready for deployment to production!" >> $GITHUB_STEP_SUMMARY 
+          echo "🎯 Ready for deployment to production!" >> $GITHUB_STEP_SUMMARY
