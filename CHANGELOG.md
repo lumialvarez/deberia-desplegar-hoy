@@ -3,6 +3,10 @@ Deberia desplegar hoy
 
 ## [Unreleased]
 
+## [0.0.5] - 27/07/2025
+### Fixed
+- Change expose port Dockerfile
+
 ## [0.0.4] - 27/07/2025
 ### Fixed
 - Change github workflows and Dockerfile

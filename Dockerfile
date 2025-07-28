@@ -20,10 +20,13 @@ RUN npm run build:prod
 # Use official nginx image as the base image
 FROM nginx:latest
 
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Copy the build output to replace the default nginx contents.
 COPY --from=build /app/dist/deberia-desplegar-hoy/browser /usr/share/nginx/html
 
 # Expose port 91
-EXPOSE 80
+EXPOSE 91
 
 CMD ["nginx", "-g", "daemon off;"]
