@@ -1,6 +1,6 @@
 {
   "name": "deberia-desplegar-hoy",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -53,6 +53,7 @@
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "autoprefixer": "^10.4.21",
+    "esbuild": "0.25.8",
     "eslint": "^9.0.0",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",
