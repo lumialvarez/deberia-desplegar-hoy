@@ -147,7 +147,7 @@ export class DeployService {
 
     this.detectCountryByIP().subscribe({
       next: (detectedCountry) => {
-        const country = detectedCountry || this.countries.find(c => c.code === 'ES') || this.countries[0];
+        const country = detectedCountry || this.countries.find(c => c.code === 'CO') || this.countries[0];
 
         this.stateSignal.update(state => ({
           ...state,
@@ -418,7 +418,7 @@ export class DeployService {
           error: 'Error al generar respuesta'
         }));
       }
-    }, 1000);
+    }, 100);
   }
 
   private createResponse(currentTime: Date, country: Country, timezone: Timezone): DeployResponse {
@@ -477,7 +477,7 @@ export class DeployService {
   }
 
   private generateMessage(level: ResponseLevel, country: Country): string {
-    const messages = this.messagesCache[country.language+country.code] || 
+    const messages = this.messagesCache[country.language+country.code] ||
       this.messagesCache[country.language] ||
       this.messagesCache['es'];
     if (!messages) return 'No se encontraron mensajes para este idioma.';

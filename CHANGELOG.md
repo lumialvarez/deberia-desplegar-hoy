@@ -3,6 +3,10 @@ Deberia desplegar hoy
 
 ## [Unreleased]
 
+## [0.1.0] - 08/08/2025
+### Fixed
+- Reduce timeout in animation
+
 ## [0.0.5] - 27/07/2025
 ### Fixed
 - Change expose port Dockerfile
