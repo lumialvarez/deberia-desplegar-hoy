@@ -18,6 +18,13 @@ Deberia desplegar hoy
 - `:host { display: block }` en todos los sub-componentes (fix de colapso con `space-y-*`).
 - Imports estáticos de JSON para `deploy-config.json` y `responses/*.json` (`resolveJsonModule: true` en `tsconfig.json`).
 - Tipado estricto en `DeployService` (cero `any`): `IpApiResponse`, `Messages`, `AppState` readonly.
+- **SSG/Prerender** con `outputMode: "static"` y `provideClientHydration(withEventReplay())`; el build prerenderea `/` y `/404` a HTML estático (el output sigue siendo servible por nginx sin servidor Node).
+- **PWA** instalable: `@angular/service-worker` + `ngsw-config.json` con `app-shell` (prefetch) y `static-assets` (lazy) asset groups; estrategia `freshness` para `ipapi.co` con cache 1d y timeout 3s.
+- `manifest.webmanifest` con iconos SVG (192/512 any + maskable), categorías `developer/utilities/productivity`, `display: standalone`, `theme_color` y `background_color` OKLCH.
+- `public/robots.txt` y `public/sitemap.xml` para SEO.
+- Favicon SVG con flecha de deploy y gradiente verde→cian; reemplaza el .ico legacy.
+- Meta tags completos en `index.html`: `description`, OG (`og:title/description/url/image/locale/type/image:alt`), Twitter card, theme-color, apple-mobile-web-app-*, canonical, manifest link, apple-touch-icon.
+- `nginx.conf` endurecido: headers de seguridad (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`), cache inmutable 1y para assets hasheados, `Service-Worker-Allowed: /` para `ngsw-worker.js`, gzip habilitado.
 
 ### Changed
 - `App` dividido en `features/deploy-dashboard/` con 5 sub-componentes: `StatusCardComponent`, `TimeDisplayComponent`, `LocationPickerComponent`, `DebugControlsComponent`, `DashboardFooterComponent`.
@@ -34,6 +41,11 @@ Deberia desplegar hoy
 - `ResponseLevel`, `Country`, `Timezone`, `AppState` marcados como `readonly` para inmutabilidad.
 - Overrides de Angular Material reducidos de 311 a ~100 líneas (paleta OKLCH consistente).
 - `index.html` añade Space Grotesk + Inter (con `preconnect`) y meta `theme-color` / `description`.
+- **Build pasa de SPA a SSG**: `outputMode: "static"` + server entry (`src/main.server.ts` + `src/app/app.config.server.ts`) prerenderea `/` y `/404` a HTML estático; el `Dockerfile` no necesita cambios (sigue copiando `dist/.../browser`).
+- **`DeployService` ahora SSR-safe**: `isPlatformBrowser(inject(PLATFORM_ID))` guarda `checkDebugMode`, `startTimeUpdates` y `detectLocation`; la inicialización corre solo en el browser.
+- Ruta 404 explicitada: `{ path: '404', component: NotFoundComponent }` + `{ path: '**', redirectTo: '/404' }` para que el prerender genere `404/index.html`.
+- `app.config.ts` añade `provideClientHydration(withEventReplay())` y `provideServiceWorker('ngsw-worker.js', { enabled: !isDevMode(), registrationStrategy: 'registerWhenStable:30000' })`.
+- Assets folder renombrado: `src/assets/` → `public/` (copia automática al build). El nuevo `public/` contiene `favicon.svg`, `icons/*.svg`, `manifest.webmanifest`, `robots.txt`, `sitemap.xml`.
 
 ### Fixed
 - Reduce timeout in animation
@@ -47,6 +59,7 @@ Deberia desplegar hoy
 - `src/app/services/deploy-service.service.ts` (movido y renombrado a `deploy.service.ts`).
 - `src/assets/deploy-config.json` y `src/assets/responses/*.json` (movidos a `data/`).
 - `postcss.config.js` (reemplazado por `.postcssrc.json`).
+- `app.html` (consolidado en el shell).
 
 ## [0.0.5] - 27/07/2025
 ### Fixed

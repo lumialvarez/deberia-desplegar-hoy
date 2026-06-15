@@ -63,17 +63,86 @@ src/
 │   │       ├── models/          # location.model, deploy-response.model
 │   │       └── data/            # deploy-config.json + responses/{lang}.json
 │   ├── app.ts                   # Shell: solo <router-outlet />
-│   ├── app.config.ts
+│   ├── app.config.ts            # Browser providers
+│   ├── app.config.server.ts     # SSR providers (provideServerRendering)
 │   └── app.routes.ts
 ├── tailwind.css                 # @import "tailwindcss" + @theme tokens
 ├── styles.scss                  # Reset global + overrides Material
 ├── index.html
-└── main.ts
+├── main.ts                      # Browser entry
+└── main.server.ts               # SSR entry (used only at build time)
+
+public/                          # Copia verbatim al build (no pasa por Webpack)
+├── favicon.svg
+├── manifest.webmanifest
+├── robots.txt
+├── sitemap.xml
+└── icons/                       # Iconos PWA (SVG, any + maskable)
 ```
 
 > No hay `src/assets/`. Los datos estáticos (config, mensajes i18n) viven
 > dentro de la feature que los consume y se importan estáticamente desde TS.
 > Ver §"📦 Assets estáticos como imports" más abajo.
+
+La raíz tiene un `public/` que Angular copia verbatim al build (favicon,
+manifest, robots, sitemap, iconos PWA). Ver §"📱 PWA + SSG" más abajo.
+
+---
+
+## 📱 PWA + SSG (Static Site Generation)
+
+El proyecto está pre-renderizado y es instalable como PWA. El output sigue
+siendo estático (sin servidor Node en runtime); nginx lo sirve tal cual.
+
+### Prerender (SSG)
+
+- `angular.json` → `architect.build.options.outputMode: "static"` +
+  `server: "src/main.server.ts"`. Con esto Angular ejecuta el server entry
+  en build time, prerenderea cada ruta y emite HTML estático.
+- Rutas prerenderizadas: `/` y `/404`. La 404 es ruta explícita
+  (`{ path: '404', component: NotFoundComponent }`) + wildcard
+  `{ path: '**', redirectTo: '/404' }` — el wildcard solo no se prerenderea.
+- `app.config.ts` añade `provideClientHydration(withEventReplay())` para
+  re-hidratar sin parpadeo en el cliente.
+- `app.config.server.ts` solo añade `provideServerRendering()` y se mergea
+  con el `appConfig` del browser.
+
+### SSR-safety
+
+- Los servicios que tocan `window`/`document`/`localStorage` deben guardar
+  con `isPlatformBrowser(inject(PLATFORM_ID))`. Ejemplo en
+  `deploy.service.ts`: la inicialización del constructor (debug mode,
+  interval, IP detect) solo corre en browser.
+- No uses `setInterval`/`setTimeout` con cleanup manual en el servicio
+  durante SSR — déjalo solo para el browser.
+- `HttpClient` con `withFetch()` es obligatorio para que el server-side
+  rendering funcione (el `XMLHttpRequest` nativo no existe en Node).
+
+### PWA / Service Worker
+
+- `@angular/service-worker` configurado en `ngsw-config.json` (en root).
+- En `app.config.ts`: `provideServiceWorker('ngsw-worker.js', { enabled:
+  !isDevMode(), registrationStrategy: 'registerWhenStable:30000' })`. El
+  flag `enabled: !isDevMode()` evita el SW en `ng serve`.
+- `ngsw-config.json` define dos asset groups:
+  - `app-shell` (prefetch): `index.html`, `favicon.*`, `manifest`,
+    `robots.txt`, `sitemap.xml`, `*.css`, `*.js`.
+  - `static-assets` (lazy): `icons/**` y archivos de imagen/fuentes.
+- `dataGroups` para la única llamada HTTP saliente (`ipapi.co/json/`) con
+  estrategia `freshness`, maxSize 4, maxAge 1d, timeout 3s.
+- `navigationUrls` declara qué URLs son "rutas de app" (todo lo que no
+  sea archivo con extensión).
+
+### nginx
+
+- `nginx.conf` sirve el `dist/.../browser/` como SPA fallback. Service
+  worker en `/ngsw-worker.js` con header `Service-Worker-Allowed: /` y
+  `Cache-Control: no-cache` (Angular invalida con `ngsw.json`).
+- Assets hasheados (`main-*.js`, `styles-*.css`) llevan
+  `Cache-Control: public, immutable` por 1 año.
+- Headers de seguridad: `X-Content-Type-Options`, `X-Frame-Options`,
+  `Referrer-Policy`, `Permissions-Policy` (deshabilita geolocation/mic/
+  camera que la app no usa).
 
 ---
 

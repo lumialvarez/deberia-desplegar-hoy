@@ -1,4 +1,5 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, interval, map, of, Subject, takeUntil } from 'rxjs';
 
@@ -55,6 +56,7 @@ interface AppState {
 @Injectable({ providedIn: 'root' })
 export class DeployService {
   private readonly http = inject(HttpClient);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly stateSignal = signal<AppState>({
     isLoading: false,
@@ -167,9 +169,11 @@ export class DeployService {
   };
 
   constructor() {
-    this.checkDebugMode();
-    this.startTimeUpdates();
-    this.detectLocation();
+    if (this.isBrowser) {
+      this.checkDebugMode();
+      this.startTimeUpdates();
+      this.detectLocation();
+    }
   }
 
   public getCountries(): readonly Country[] {
@@ -301,6 +305,7 @@ export class DeployService {
   }
 
   private checkDebugMode(): void {
+    if (!this.isBrowser) return;
     const isDebugMode = new URLSearchParams(window.location.search).get('debug') === 'true';
     this.stateSignal.update((state) => ({ ...state, isDebugMode }));
   }
