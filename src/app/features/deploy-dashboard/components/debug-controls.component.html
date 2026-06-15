@@ -1,0 +1,30 @@
+<div class="glass rounded-2xl p-6 animate-fade-up">
+  <h3 class="text-xs font-medium uppercase tracking-[0.25em] text-white/50 text-center mb-4">
+    Modo debug
+  </h3>
+  <div class="grid sm:grid-cols-2 gap-4">
+    <mat-form-field appearance="outline">
+      <mat-select
+        [value]="state().debugDay"
+        (selectionChange)="onDebugDayChange($event.value)"
+        placeholder="Día">
+        <mat-option [value]="null">Día actual</mat-option>
+        @for (day of debugDays; track day.value) {
+          <mat-option [value]="day.value">{{ day.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-select
+        [value]="state().debugHour"
+        (selectionChange)="onDebugHourChange($event.value)"
+        placeholder="Hora">
+        <mat-option [value]="null">Hora actual</mat-option>
+        @for (hour of debugHours; track hour.value) {
+          <mat-option [value]="hour.value">{{ hour.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>

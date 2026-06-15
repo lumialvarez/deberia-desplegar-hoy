@@ -25,6 +25,7 @@
               "src/favicon.ico"
             ],
             "styles": [
+              "src/tailwind.css",
               "src/styles.scss"
             ]
           },
@@ -33,7 +34,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "700kB",
                   "maximumError": "1MB"
                 },
                 {
@@ -80,6 +81,7 @@
               }
             ],
             "styles": [
+              "src/tailwind.css",
               "src/styles.scss"
             ]
           }
