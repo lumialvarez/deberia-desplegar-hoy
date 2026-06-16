@@ -1,0 +1,53 @@
+<div class="glass rounded-2xl p-6 md:p-8 animate-fade-up">
+  <div class="space-y-6">
+    <h3 class="text-xs font-medium uppercase tracking-[0.25em] text-white/50 text-center">
+      Configuración de zona horaria
+    </h3>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-select
+          [value]="state().selectedCountry"
+          (selectionChange)="onCountryChange($event.value)"
+          placeholder="País">
+          <mat-option [value]="null">Detectar automáticamente</mat-option>
+          @for (country of countries; track country.code) {
+            <mat-option [value]="country">{{ country.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-select
+          [value]="state().selectedTimezone"
+          (selectionChange)="onTimezoneChange($event.value)"
+          placeholder="Zona horaria">
+          <mat-option [value]="null">Detectar automáticamente</mat-option>
+          @for (timezone of timezones; track timezone.value) {
+            <mat-option [value]="timezone">{{ timezone.value }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="flex flex-col items-center gap-3">
+      <button
+        type="button"
+        (click)="onDetectLocation()"
+        [disabled]="state().isLoading"
+        class="inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium
+               bg-white/5 hover:bg-white/10 border border-white/10
+               disabled:opacity-50 disabled:cursor-not-allowed
+               transition focus:outline-none focus:ring-2 focus:ring-deploy-yes">
+        <mat-icon>my_location</mat-icon>
+        <span>{{ state().isLoading ? 'Detectando…' : 'Detectar ubicación' }}</span>
+      </button>
+
+      @if (state().selectedCountry && state().selectedTimezone) {
+        <p class="text-xs text-white/40">
+          {{ state().selectedCountry?.name }} · {{ state().selectedTimezone?.value }}
+        </p>
+      }
+    </div>
+  </div>
+</div>

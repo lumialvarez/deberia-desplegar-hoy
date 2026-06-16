@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Palette ─────────────────────────────────────────── */
+  --color-canvas: oklch(0.14 0.02 270);
+  --color-surface: oklch(0.18 0.02 270);
+  --color-fg: oklch(0.98 0 0);
+  --color-muted: oklch(0.65 0.01 270);
+  --color-line: oklch(1 0 0 / 0.08);
+  --color-line-strong: oklch(1 0 0 / 0.14);
+
+  --color-deploy-yes: oklch(0.72 0.17 145);
+  --color-deploy-caution: oklch(0.78 0.16 75);
+  --color-deploy-no: oklch(0.65 0.22 25);
+  --color-deploy-hell-no: oklch(0.50 0.22 18);
+
+  /* ── Typography ──────────────────────────────────────── */
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Animations ──────────────────────────────────────── */
+  --animate-aurora: aurora-drift 24s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.4s linear infinite;
+  --animate-pulse-soft: pulse-soft 3.5s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes aurora-drift {
+  0%, 100% { background-position: 0% 0%, 100% 100%, 50% 50%, 0 0; }
+  50%      { background-position: 20% 30%, 80% 70%, 60% 40%, 0 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.7; }
+}
+
+@keyframes fade-up {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
