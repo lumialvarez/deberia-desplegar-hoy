@@ -100,6 +100,7 @@ body {
 .mat-mdc-select-value,
 .mat-mdc-select-placeholder {
   color: oklch(0.98 0 0) !important;
+  padding-left: 4px !important;
 }
 
 .mat-mdc-select-arrow { color: oklch(0.65 0.01 270) !important; }
@@ -118,6 +119,7 @@ body {
 .mat-mdc-option {
   color: oklch(0.98 0 0) !important;
   min-height: 48px !important;
+  padding-left: 14px !important;
 }
 
 .mat-mdc-option:hover:not(.mdc-list-item--disabled) {
