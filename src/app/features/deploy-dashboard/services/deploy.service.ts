@@ -1,4 +1,4 @@
-import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, afterNextRender, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, interval, map, of, Subject, takeUntil } from 'rxjs';
@@ -169,11 +169,14 @@ export class DeployService {
   };
 
   constructor() {
-    if (this.isBrowser) {
+    // Defer client-side initialization until after the first render
+    // (post-hydration). The server transferState would otherwise
+    // overwrite any state set here.
+    afterNextRender(() => {
       this.checkDebugMode();
       this.startTimeUpdates();
       this.detectLocation();
-    }
+    });
   }
 
   public getCountries(): readonly Country[] {
