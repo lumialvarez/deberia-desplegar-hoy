@@ -3,7 +3,7 @@ Deberia desplegar hoy
 
 ## [Unreleased]
 
-## [0.1.0] - 08/08/2025
+## [0.1.0] - 15/06/2026
 ### Added
 - AI agent rules universal en `AGENTS.md` (estándar opencode/Cursor/Copilot/Aider); `.cursorrules` queda como puntero de retrocompatibilidad.
 - Sistema de diseño moderno en `src/tailwind.css` con tokens `@theme` (paleta OKLCH, fuentes Space Grotesk + Inter, animaciones `aurora-drift`, `float`, `shimmer`, `pulse-soft`, `fade-up`).

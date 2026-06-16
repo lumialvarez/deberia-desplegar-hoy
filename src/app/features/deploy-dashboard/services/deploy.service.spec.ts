@@ -9,7 +9,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 
 import { Country } from '../models/location.model';
 import { DeployLevel } from '../models/deploy-response.model';
-import { DeployService } from './deploy.service';
+import { DeployService, LOCATION_SEARCH } from './deploy.service';
 
 const SPAIN: Country = {
   code: 'ES',
@@ -29,7 +29,10 @@ class TestHost {
  * detectLocation) actually runs. Without this, the IP HTTP call would
  * never be made in the test environment because no real render happens.
  */
-function setupService(): { service: DeployService; httpMock: HttpTestingController } {
+function setupService(
+  search = '',
+): { service: DeployService; httpMock: HttpTestingController } {
+  TestBed.overrideProvider(LOCATION_SEARCH, { useValue: search });
   const httpMock = TestBed.inject(HttpTestingController);
   const fixture = TestBed.createComponent(TestHost);
   fixture.detectChanges();
@@ -186,22 +189,9 @@ describe('DeployService', () => {
 
   describe('debug mode', () => {
     it('should respect URL ?debug=true on afterNextRender', () => {
-      const originalSearch = window.location.search;
-      Object.defineProperty(window, 'location', {
-        writable: true,
-        value: { ...window.location, search: '?debug=true' },
-      });
-
-      try {
-        const { service, httpMock } = setupService();
-        expect(service.state().isDebugMode).toBe(true);
-        httpMock.expectOne('https://ipapi.co/json/').flush({});
-      } finally {
-        Object.defineProperty(window, 'location', {
-          writable: true,
-          value: { ...window.location, search: originalSearch },
-        });
-      }
+      const { service, httpMock } = setupService('?debug=true');
+      expect(service.state().isDebugMode).toBe(true);
+      httpMock.expectOne('https://ipapi.co/json/').flush({});
     });
   });
 

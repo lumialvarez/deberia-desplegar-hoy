@@ -1,6 +1,13 @@
-import { Injectable, PLATFORM_ID, afterNextRender, inject, signal } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import {
+  Injectable,
+  InjectionToken,
+  PLATFORM_ID,
+  afterNextRender,
+  inject,
+  signal,
+} from '@angular/core';
 import { Observable, catchError, interval, map, of, Subject, takeUntil } from 'rxjs';
 
 import { Country, Timezone } from '../models/location.model';
@@ -22,6 +29,14 @@ import esClMessages from '../data/responses/es-CL.json';
 import esCoMessages from '../data/responses/es-CO.json';
 import esEsMessages from '../data/responses/es-ES.json';
 import ptMessages from '../data/responses/pt.json';
+
+export const LOCATION_SEARCH = new InjectionToken<string>('LOCATION_SEARCH', {
+  providedIn: 'root',
+  factory: () => {
+    if (!isPlatformBrowser(inject(PLATFORM_ID))) return '';
+    return inject(DOCUMENT).location?.search ?? '';
+  },
+});
 
 interface RawTimeRange {
   startHour: number;
@@ -57,7 +72,7 @@ interface AppState {
 @Injectable({ providedIn: 'root' })
 export class DeployService {
   private readonly http = inject(HttpClient);
-  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly locationSearch = inject(LOCATION_SEARCH);
 
   private readonly stateSignal = signal<AppState>({
     isLoading: false,
@@ -252,7 +267,12 @@ export class DeployService {
   }
 
   public setDebugDateTime(day: number | null, hour: number | null): void {
-    this.stateSignal.update((state) => ({ ...state, debugDay: day, debugHour: hour }));
+    this.stateSignal.update((state) => ({
+      ...state,
+      isDebugMode: true,
+      debugDay: day,
+      debugHour: hour,
+    }));
     this.generateResponse();
   }
 
@@ -310,8 +330,7 @@ export class DeployService {
   }
 
   private checkDebugMode(): void {
-    if (!this.isBrowser) return;
-    const isDebugMode = new URLSearchParams(window.location.search).get('debug') === 'true';
+    const isDebugMode = new URLSearchParams(this.locationSearch).get('debug') === 'true';
     this.stateSignal.update((state) => ({ ...state, isDebugMode }));
   }
 
