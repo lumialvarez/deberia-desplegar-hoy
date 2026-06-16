@@ -20,6 +20,7 @@ import esMessages from '../data/responses/es.json';
 import esArMessages from '../data/responses/es-AR.json';
 import esClMessages from '../data/responses/es-CL.json';
 import esCoMessages from '../data/responses/es-CO.json';
+import esEsMessages from '../data/responses/es-ES.json';
 import ptMessages from '../data/responses/pt.json';
 
 interface RawTimeRange {
@@ -163,6 +164,7 @@ export class DeployService {
     'es-AR': esArMessages as Messages,
     'es-CL': esClMessages as Messages,
     'es-CO': esCoMessages as Messages,
+    'es-ES': esEsMessages as Messages,
     es: esMessages as Messages,
     en: enMessages as Messages,
     pt: ptMessages as Messages,
